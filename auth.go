@@ -5,6 +5,7 @@ import (
 	"crypto/subtle"
 	"database/sql"
 	"encoding/hex"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -66,7 +67,7 @@ func generateToken() (string, error) {
 func createSession(db *sql.DB, userID int) (string, error) {
 	token, err := generateToken()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("generating session token: %w", err)
 	}
 
 	expiresAt := time.Now().Add(sessionDuration)
@@ -74,7 +75,7 @@ func createSession(db *sql.DB, userID int) (string, error) {
 		INSERT INTO sessions (token, user_id, expires_at)
 		VALUES (?, ?, ?)`, token, userID, expiresAt)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("inserting session: %w", err)
 	}
 
 	return token, nil
@@ -92,7 +93,7 @@ func getSession(db *sql.DB, token string) (*Session, error) {
 		return nil, nil
 	}
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("scanning session: %w", err)
 	}
 
 	return &session, nil
@@ -100,12 +101,18 @@ func getSession(db *sql.DB, token string) (*Session, error) {
 
 func deleteSession(db *sql.DB, token string) error {
 	_, err := db.Exec("DELETE FROM sessions WHERE token = ?", token)
-	return err
+	if err != nil {
+		return fmt.Errorf("deleting session: %w", err)
+	}
+	return nil
 }
 
 func cleanupExpiredSessions(db *sql.DB) error {
 	_, err := db.Exec("DELETE FROM sessions WHERE expires_at < ?", time.Now())
-	return err
+	if err != nil {
+		return fmt.Errorf("cleaning up expired sessions: %w", err)
+	}
+	return nil
 }
 
 // CSRF protection using double-submit cookie pattern

@@ -1,6 +1,9 @@
 package main
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+)
 
 func getSetting(db *sql.DB, key string) (string, error) {
 	var value string
@@ -8,7 +11,10 @@ func getSetting(db *sql.DB, key string) (string, error) {
 	if err == sql.ErrNoRows {
 		return "", nil
 	}
-	return value, err
+	if err != nil {
+		return "", fmt.Errorf("getting setting %q: %w", key, err)
+	}
+	return value, nil
 }
 
 func setSetting(db *sql.DB, key, value string) error {
@@ -16,5 +22,8 @@ func setSetting(db *sql.DB, key, value string) error {
 		INSERT INTO settings (key, value) VALUES (?, ?)
 		ON CONFLICT(key) DO UPDATE SET value = excluded.value
 	`, key, value)
-	return err
+	if err != nil {
+		return fmt.Errorf("setting %q: %w", key, err)
+	}
+	return nil
 }
