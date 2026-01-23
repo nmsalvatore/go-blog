@@ -7,8 +7,8 @@
     <input type="text" name="title" placeholder="Title" value="{{ .Post.Title }}">
     <textarea name="content" placeholder="Write something.">{{ .Post.Content }}</textarea>
     <div class="actions">
-        <button type="submit" name="action" value="draft">{{ if .Post.Published }}Convert to Draft{{ else }}Update Draft{{ end }}</button>
-        <button type="submit" name="action" value="publish">{{ if .Post.Published }}Update{{ else }}Publish{{ end }}</button>
+        <button type="submit" name="action" value="publish">{{ if .Post.Published }}Publish changes{{ else }}Publish{{ end }}</button>
+        <button type="submit" name="action" value="draft">{{ if .Post.Published }}Convert to draft{{ else }}Update draft{{ end }}</button>
     </div>
 </form>
 {{ end }}
