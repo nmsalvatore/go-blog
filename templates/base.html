@@ -8,7 +8,7 @@
 	<link rel="stylesheet" href="/static/style.css">
 	<title>{{ .Title }} - Quiet Nothings</title>
 </head>
-<body>
+<body data-theme="{{ .Theme }}" data-font="{{ .Font }}">
     {{ if .IsAuthenticated }}
         <nav>
             <a href="/">Home</a>

@@ -6,6 +6,20 @@
     <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
     <label for="intro">Modify the introduction text for the home page below. Leave it empty to omit introduction text.</label>
     <textarea name="intro" id="intro" placeholder="Enter intro text for the home page.">{{ .Intro }}</textarea>
+
+    <fieldset>
+        <legend>Theme</legend>
+        <label><input type="radio" name="theme" value="" {{if eq .Theme ""}}checked{{end}}> Light</label>
+        <label><input type="radio" name="theme" value="dark" {{if eq .Theme "dark"}}checked{{end}}> Dark</label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Font</legend>
+        <label><input type="radio" name="font" value="" {{if eq .Font ""}}checked{{end}}> Courier</label>
+        <label><input type="radio" name="font" value="inter" {{if eq .Font "inter"}}checked{{end}}> Inter</label>
+        <label><input type="radio" name="font" value="serif" {{if eq .Font "serif"}}checked{{end}}> Georgia</label>
+    </fieldset>
+
     <div class="actions">
         <button type="submit">Save</button>
     </div>

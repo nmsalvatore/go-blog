@@ -1,6 +1,19 @@
 :root {
-    --dark-color: black;
-    --light-color: white;
+    --text: black;
+    --bg: white;
+}
+
+[data-theme="dark"] {
+    --text: #e0e0e0;
+    --bg: #1a1a1a;
+}
+
+[data-font="inter"] {
+    font-family: Inter, system-ui, sans-serif;
+}
+
+[data-font="serif"] {
+    font-family: Georgia, serif;
 }
 
 * {
@@ -14,7 +27,8 @@ html {
 }
 
 body {
-    color: var(--dark-color);
+    background: var(--bg);
+    color: var(--text);
     font-family: Courier, monospace;
     line-height: 1.3;
 }
@@ -22,8 +36,8 @@ body {
 /* container styles */
 
 nav {
-    background: var(--dark-color);
-    color: var(--light-color);
+    background: var(--text);
+    color: var(--bg);
     padding: 1rem;
     display: flex;
     justify-content: space-between;
@@ -138,6 +152,28 @@ label[for="intro"] {
     box-shadow: inset 1px 1px lightgray;
     min-height: 100px;
     padding: 8px 12px;
+}
+
+fieldset {
+    border: none;
+    margin-bottom: 1rem;
+}
+
+fieldset legend {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+fieldset label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+fieldset input[type="radio"] {
+    display: inline;
+    width: auto;
+    margin-right: 0.5rem;
+    font-weight: normal;
 }
 
 .actions {

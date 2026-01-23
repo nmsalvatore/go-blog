@@ -15,6 +15,12 @@ func (b *Blog) render(w http.ResponseWriter, tmpl string, data map[string]any) {
 	}
 }
 
+func (b *Blog) getDisplaySettings() (theme, font string) {
+	theme, _ = getSetting(b.db, "theme")
+	font, _ = getSetting(b.db, "font")
+	return
+}
+
 func (b *Blog) Home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
@@ -53,6 +59,7 @@ func (b *Blog) Home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	theme, font := b.getDisplaySettings()
 	data := map[string]any{
 		"Title":           "Home",
 		"Posts":           posts,
@@ -60,6 +67,8 @@ func (b *Blog) Home(w http.ResponseWriter, r *http.Request) {
 		"Intro":           intro,
 		"IsAuthenticated": isAuth,
 		"CSRFToken":       ensureCSRFToken(w, r),
+		"Theme":           theme,
+		"Font":            font,
 	}
 
 	b.render(w, "home.html", data)
@@ -89,11 +98,14 @@ func (b *Blog) Detail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	theme, font := b.getDisplaySettings()
 	data := map[string]any{
 		"Title":           post.Title,
 		"Post":            post,
 		"IsAuthenticated": isAuth,
 		"CSRFToken":       ensureCSRFToken(w, r),
+		"Theme":           theme,
+		"Font":            font,
 	}
 
 	b.render(w, "detail.html", data)
@@ -101,10 +113,13 @@ func (b *Blog) Detail(w http.ResponseWriter, r *http.Request) {
 
 func (b *Blog) Create(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
+		theme, font := b.getDisplaySettings()
 		data := map[string]any{
 			"Title":           "New Post",
 			"IsAuthenticated": true,
 			"CSRFToken":       ensureCSRFToken(w, r),
+			"Theme":           theme,
+			"Font":            font,
 		}
 		b.render(w, "create.html", data)
 		return
@@ -154,11 +169,14 @@ func (b *Blog) Edit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		theme, font := b.getDisplaySettings()
 		data := map[string]any{
 			"Title":           fmt.Sprintf("Editing %q", post.Title),
 			"Post":            post,
 			"IsAuthenticated": true,
 			"CSRFToken":       ensureCSRFToken(w, r),
+			"Theme":           theme,
+			"Font":            font,
 		}
 		b.render(w, "edit.html", data)
 		return
@@ -207,11 +225,14 @@ func (b *Blog) Delete(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		theme, font := b.getDisplaySettings()
 		data := map[string]any{
 			"Title":           fmt.Sprintf("Deleting %q", post.Title),
 			"Post":            post,
 			"IsAuthenticated": true,
 			"CSRFToken":       ensureCSRFToken(w, r),
+			"Theme":           theme,
+			"Font":            font,
 		}
 		b.render(w, "delete.html", data)
 		return
@@ -239,11 +260,14 @@ func (b *Blog) Settings(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		theme, font := b.getDisplaySettings()
 		data := map[string]any{
 			"Title":           "Settings",
 			"Intro":           intro,
 			"IsAuthenticated": true,
 			"CSRFToken":       ensureCSRFToken(w, r),
+			"Theme":           theme,
+			"Font":            font,
 		}
 		b.render(w, "settings.html", data)
 		return
@@ -255,8 +279,18 @@ func (b *Blog) Settings(w http.ResponseWriter, r *http.Request) {
 		}
 
 		intro := r.FormValue("intro")
-		err := setSetting(b.db, "intro", intro)
-		if err != nil {
+		theme := r.FormValue("theme")
+		font := r.FormValue("font")
+
+		if err := setSetting(b.db, "intro", intro); err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		if err := setSetting(b.db, "theme", theme); err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		if err := setSetting(b.db, "font", font); err != nil {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -267,9 +301,12 @@ func (b *Blog) Settings(w http.ResponseWriter, r *http.Request) {
 
 func (b *Blog) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
+		theme, font := b.getDisplaySettings()
 		data := map[string]any{
 			"Title":     "Quiet Nothings",
 			"CSRFToken": ensureCSRFToken(w, r),
+			"Theme":     theme,
+			"Font":      font,
 		}
 		b.render(w, "login.html", data)
 		return
@@ -284,10 +321,13 @@ func (b *Blog) Login(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 
 		if subtle.ConstantTimeCompare([]byte(username), []byte(adminUsername)) != 1 || !checkPassword(adminPassword, password) {
+			theme, font := b.getDisplaySettings()
 			data := map[string]any{
 				"Title":     "Quiet Nothings",
 				"Error":     "Invalid username or password",
 				"CSRFToken": getCSRFToken(r),
+				"Theme":     theme,
+				"Font":      font,
 			}
 			w.WriteHeader(http.StatusUnauthorized)
 			b.render(w, "login.html", data)
