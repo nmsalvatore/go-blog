@@ -2,11 +2,34 @@ package main
 
 import (
 	"crypto/subtle"
+	"encoding/xml"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
+
+type rss struct {
+	XMLName xml.Name   `xml:"rss"`
+	Version string     `xml:"version,attr"`
+	Channel rssChannel `xml:"channel"`
+}
+
+type rssChannel struct {
+	Title       string    `xml:"title"`
+	Link        string    `xml:"link"`
+	Description string    `xml:"description"`
+	Items       []rssItem `xml:"item"`
+}
+
+type rssItem struct {
+	Title       string `xml:"title"`
+	Link        string `xml:"link"`
+	GUID        string `xml:"guid"`
+	PubDate     string `xml:"pubDate"`
+	Description string `xml:"description"`
+}
 
 func (b *Blog) render(w http.ResponseWriter, tmpl string, data map[string]any) {
 	if err := b.templates[tmpl].ExecuteTemplate(w, "base", data); err != nil {
@@ -377,4 +400,49 @@ func (b *Blog) Logout(w http.ResponseWriter, r *http.Request) {
 	})
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (b *Blog) Feed(w http.ResponseWriter, r *http.Request) {
+	posts, err := getPublishedPosts(b.db)
+	if err != nil {
+		log.Printf("fetching posts for feed: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	scheme := "https"
+	if proto := r.Header.Get("X-Forwarded-Proto"); proto != "" {
+		scheme = proto
+	} else if r.TLS == nil {
+		scheme = "http"
+	}
+	baseURL := scheme + "://" + r.Host
+
+	items := make([]rssItem, len(posts))
+	for i, post := range posts {
+		postURL := fmt.Sprintf("%s/post/%d", baseURL, post.ID)
+		items[i] = rssItem{
+			Title:       post.Title,
+			Link:        postURL,
+			GUID:        postURL,
+			PubDate:     post.CreatedAt.UTC().Format(time.RFC1123Z),
+			Description: post.Content,
+		}
+	}
+
+	feed := rss{
+		Version: "2.0",
+		Channel: rssChannel{
+			Title:       "Quiet Nothings",
+			Link:        baseURL,
+			Description: "A personal blog",
+			Items:       items,
+		},
+	}
+
+	w.Header().Set("Content-Type", "application/rss+xml; charset=utf-8")
+	w.Write([]byte(xml.Header))
+	if err := xml.NewEncoder(w).Encode(feed); err != nil {
+		log.Printf("encoding RSS feed: %v", err)
+	}
 }

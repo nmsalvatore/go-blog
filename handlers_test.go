@@ -442,3 +442,93 @@ func TestEdit_PublishDraft(t *testing.T) {
 		t.Error("expected draft to be published")
 	}
 }
+
+func TestFeed(t *testing.T) {
+	blog := setupTestBlog(t)
+
+	// Create published posts
+	createPost(blog.db, "First Post", "First content", true)
+	createPost(blog.db, "Second Post", "Second content", true)
+	// Create a draft (should not appear)
+	createPost(blog.db, "Draft Post", "Draft content", false)
+
+	req := httptest.NewRequest(http.MethodGet, "/feed", nil)
+	w := httptest.NewRecorder()
+
+	blog.Feed(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status %d, got %d", http.StatusOK, w.Code)
+	}
+
+	contentType := w.Header().Get("Content-Type")
+	if !strings.Contains(contentType, "application/rss+xml") {
+		t.Errorf("expected Content-Type application/rss+xml, got %s", contentType)
+	}
+
+	body := w.Body.String()
+
+	// Check RSS structure
+	if !strings.Contains(body, `<?xml version="1.0"`) {
+		t.Error("expected XML declaration")
+	}
+	if !strings.Contains(body, `<rss version="2.0">`) {
+		t.Error("expected RSS element")
+	}
+	if !strings.Contains(body, "<channel>") {
+		t.Error("expected channel element")
+	}
+
+	// Check published posts appear
+	if !strings.Contains(body, "First Post") {
+		t.Error("expected First Post in feed")
+	}
+	if !strings.Contains(body, "Second Post") {
+		t.Error("expected Second Post in feed")
+	}
+
+	// Check draft does not appear
+	if strings.Contains(body, "Draft Post") {
+		t.Error("draft should not appear in feed")
+	}
+}
+
+func TestFeed_Empty(t *testing.T) {
+	blog := setupTestBlog(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/feed", nil)
+	w := httptest.NewRecorder()
+
+	blog.Feed(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status %d, got %d", http.StatusOK, w.Code)
+	}
+
+	body := w.Body.String()
+	if !strings.Contains(body, "<channel>") {
+		t.Error("expected channel element even with no posts")
+	}
+}
+
+func TestFeed_EscapesXML(t *testing.T) {
+	blog := setupTestBlog(t)
+
+	// Create post with special characters
+	createPost(blog.db, "Test <script>", "Content with <html> & \"quotes\"", true)
+
+	req := httptest.NewRequest(http.MethodGet, "/feed", nil)
+	w := httptest.NewRecorder()
+
+	blog.Feed(w, req)
+
+	body := w.Body.String()
+
+	// Check that special characters are escaped
+	if strings.Contains(body, "<script>") {
+		t.Error("expected < to be escaped")
+	}
+	if !strings.Contains(body, "&lt;script&gt;") {
+		t.Error("expected &lt;script&gt; in escaped title")
+	}
+}
