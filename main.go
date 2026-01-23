@@ -16,7 +16,6 @@ type Blog struct {
 }
 
 func linebreaks(s string) template.HTML {
-	// Escape HTML first to prevent XSS, then add our formatting
 	s = template.HTMLEscapeString(s)
 
 	paragraphs := strings.Split(s, "\n\n")

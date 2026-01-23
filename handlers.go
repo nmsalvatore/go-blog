@@ -7,6 +7,12 @@ import (
 	"strconv"
 )
 
+func (b *Blog) render(w http.ResponseWriter, tmpl string, data map[string]any) {
+	if err := b.templates[tmpl].ExecuteTemplate(w, "base", data); err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
+}
+
 func (b *Blog) Home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
@@ -54,10 +60,7 @@ func (b *Blog) Home(w http.ResponseWriter, r *http.Request) {
 		"CSRFToken":       ensureCSRFToken(w, r),
 	}
 
-	err = b.templates["home.html"].ExecuteTemplate(w, "base", data)
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
+	b.render(w, "home.html", data)
 }
 
 func (b *Blog) Detail(w http.ResponseWriter, r *http.Request) {
@@ -91,10 +94,7 @@ func (b *Blog) Detail(w http.ResponseWriter, r *http.Request) {
 		"CSRFToken":       ensureCSRFToken(w, r),
 	}
 
-	err = b.templates["detail.html"].ExecuteTemplate(w, "base", data)
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
+	b.render(w, "detail.html", data)
 }
 
 func (b *Blog) Create(w http.ResponseWriter, r *http.Request) {
@@ -104,10 +104,7 @@ func (b *Blog) Create(w http.ResponseWriter, r *http.Request) {
 			"IsAuthenticated": true,
 			"CSRFToken":       ensureCSRFToken(w, r),
 		}
-		err := b.templates["create.html"].ExecuteTemplate(w, "create.html", data)
-		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-		}
+		b.render(w, "create.html", data)
 		return
 	}
 
@@ -167,10 +164,7 @@ func (b *Blog) Edit(w http.ResponseWriter, r *http.Request) {
 			"IsAuthenticated": true,
 			"CSRFToken":       ensureCSRFToken(w, r),
 		}
-		err = b.templates["edit.html"].ExecuteTemplate(w, "base", data)
-		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-		}
+		b.render(w, "edit.html", data)
 		return
 	}
 
@@ -229,10 +223,7 @@ func (b *Blog) Delete(w http.ResponseWriter, r *http.Request) {
 			"IsAuthenticated": true,
 			"CSRFToken":       ensureCSRFToken(w, r),
 		}
-		err = b.templates["delete.html"].ExecuteTemplate(w, "base", data)
-		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-		}
+		b.render(w, "delete.html", data)
 		return
 	}
 
@@ -270,10 +261,7 @@ func (b *Blog) Settings(w http.ResponseWriter, r *http.Request) {
 			"IsAuthenticated": true,
 			"CSRFToken":       ensureCSRFToken(w, r),
 		}
-		err = b.templates["settings.html"].ExecuteTemplate(w, "base", data)
-		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-		}
+		b.render(w, "settings.html", data)
 		return
 	}
 
@@ -305,10 +293,7 @@ func (b *Blog) Login(w http.ResponseWriter, r *http.Request) {
 			"Title":     "Quiet Nothings",
 			"CSRFToken": ensureCSRFToken(w, r),
 		}
-		err := b.templates["login.html"].ExecuteTemplate(w, "base", data)
-		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-		}
+		b.render(w, "login.html", data)
 		return
 	}
 
@@ -333,10 +318,7 @@ func (b *Blog) Login(w http.ResponseWriter, r *http.Request) {
 				"CSRFToken": getCSRFToken(r),
 			}
 			w.WriteHeader(http.StatusUnauthorized)
-			err := b.templates["login.html"].ExecuteTemplate(w, "base", data)
-			if err != nil {
-				http.Error(w, "Internal server error", http.StatusInternalServerError)
-			}
+			b.render(w, "login.html", data)
 			return
 		}
 
