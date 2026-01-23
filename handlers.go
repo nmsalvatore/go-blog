@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/subtle"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -253,4 +254,139 @@ func (b *Blog) Delete(w http.ResponseWriter, r *http.Request) {
 
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
+}
+
+func (b *Blog) Settings(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		intro, err := getSetting(b.db, "intro")
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		data := map[string]any{
+			"Title":           "Settings",
+			"Intro":           intro,
+			"IsAuthenticated": true,
+			"CSRFToken":       ensureCSRFToken(w, r),
+		}
+		err = b.templates["settings.html"].ExecuteTemplate(w, "base", data)
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	if r.Method == http.MethodPost {
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		if !validateCSRF(r) {
+			http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+			return
+		}
+
+		intro := r.FormValue("intro")
+		err := setSetting(b.db, "intro", intro)
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+}
+
+func (b *Blog) Login(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		data := map[string]any{
+			"Title":     "Quiet Nothings",
+			"CSRFToken": ensureCSRFToken(w, r),
+		}
+		err := b.templates["login.html"].ExecuteTemplate(w, "base", data)
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	if r.Method == http.MethodPost {
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		if !validateCSRF(r) {
+			http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+			return
+		}
+
+		username := r.FormValue("username")
+		password := r.FormValue("password")
+
+		if subtle.ConstantTimeCompare([]byte(username), []byte(adminUsername)) != 1 || !checkPassword(adminPassword, password) {
+			data := map[string]any{
+				"Title":     "Quiet Nothings",
+				"Error":     "Invalid username or password",
+				"CSRFToken": getCSRFToken(r),
+			}
+			w.WriteHeader(http.StatusUnauthorized)
+			err := b.templates["login.html"].ExecuteTemplate(w, "base", data)
+			if err != nil {
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+			}
+			return
+		}
+
+		token, err := createSession(b.db, 1) // userID 1 for admin
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     sessionCookieName,
+			Value:    token,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   secureCookies,
+			SameSite: http.SameSiteLaxMode,
+			MaxAge:   int(sessionDuration.Seconds()),
+		})
+
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+}
+
+func (b *Blog) Logout(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	if !validateCSRF(r) {
+		http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+		return
+	}
+
+	cookie, err := r.Cookie(sessionCookieName)
+	if err == nil {
+		deleteSession(b.db, cookie.Value)
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:   sessionCookieName,
+		Value:  "",
+		Path:   "/",
+		MaxAge: -1,
+	})
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
