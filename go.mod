@@ -1,4 +1,4 @@
-module claude-blog1
+module blog
 
 go 1.25.1
 
