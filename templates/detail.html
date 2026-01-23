@@ -1,0 +1,18 @@
+{{ define "content" }}
+<article>
+    <header>
+        <h1 class="title">{{ .Post.Title }}</h1>
+    </header>
+    <div class="content">
+        {{ .Post.Content | linebreaks }}
+    </div>
+    {{ if .IsAuthenticated }}
+    <div class="actions">
+        <a class="btn" href="/edit/{{ .Post.ID }}">Edit</a>
+        <a class="btn" href="/delete/{{ .Post.ID }}">Delete</a>
+    </div>
+    {{ end }}
+</article>
+{{ end }}
+
+{{ template "base" .}}

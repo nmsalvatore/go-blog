@@ -1,0 +1,16 @@
+{{ define "content" }}
+<header>
+    <h1>Settings</h1>
+</header>
+<form action="/settings" method="post">
+    <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+    <label for="intro">Modify the introduction text for the home page below. Leave it empty to omit introduction text.</label>
+    <textarea name="intro" id="intro" placeholder="Enter intro text for the home page.">{{ .Intro }}</textarea>
+    <div class="actions">
+        <button type="submit">Save</button>
+    </div>
+</form>
+{{ end }}
+
+{{ define "scripts" }}<script src="static/script.js"></script>{{ end }}
+{{ template "base" . }}

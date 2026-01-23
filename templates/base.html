@@ -1,0 +1,28 @@
+{{ define "base" }}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/static/style.css">
+	<title>{{ .Title }} - Quiet Nothings</title>
+</head>
+<body>
+    {{ if .IsAuthenticated }}
+        <nav>
+            <a href="/settings">Settings</a>
+            <form action="/logout" method="post">
+                <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+                <button type="submit">Logout</button>
+            </form>
+        </nav>
+    {{ end }}
+    <main>
+        {{ template "content" . }}
+    </main>
+    {{ block "scripts" . }}{{ end }}
+</body>
+</html>
+
+{{ end }}

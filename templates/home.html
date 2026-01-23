@@ -1,0 +1,25 @@
+{{ define "content" }}
+<header>
+    <h1>Quiet Nothings</h1>
+    {{ if .IsAuthenticated }}
+        <a href="/new">&plus;</a>
+    {{ end }}
+</header>
+{{ if .Intro }}
+    <p>{{ .Intro }}</p>
+{{ end }}
+{{ if and .IsAuthenticated .Drafts }}
+    <ul class="drafts">
+        {{ range .Drafts }}
+            <li><a href="/post/{{ .ID }}">{{ .Title }}</a></li>
+        {{ end }}
+    </ul>
+{{ end }}
+<ul>
+    {{ range .Posts }}
+        <li><a href="/post/{{ .ID }}">{{ .Title }}</a></li>
+    {{ end }}
+</ul>
+{{ end }}
+
+{{ template "base" . }}

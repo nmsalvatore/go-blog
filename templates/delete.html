@@ -1,0 +1,14 @@
+{{ define "content" }}
+<article>
+    <header>
+        <h1 class="title">Confirm delete</h1>
+    </header>
+    <form action="/delete/{{ .Post.ID }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+        <p>Are you sure you want to delete "{{ .Post.Title }}"?</p>
+        <button type="submit">Yes, delete it</button>
+    </form>
+</article>
+{{ end }}
+
+{{ template "base" . }}

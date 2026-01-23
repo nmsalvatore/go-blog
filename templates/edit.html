@@ -1,0 +1,17 @@
+{{ define "content" }}
+<header>
+    <h1 class="editing">Editing "{{ .Post.Title }}"</h1>
+</header>
+<form action="/edit/{{ .Post.ID }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+    <input type="text" name="title" placeholder="Title" value="{{ .Post.Title }}">
+    <textarea name="content" placeholder="Write something.">{{ .Post.Content }}</textarea>
+    <div class="actions">
+        <button type="submit" name="action" value="draft">{{ if .Post.Published }}Convert to Draft{{ else }}Update Draft{{ end }}</button>
+        <button type="submit" name="action" value="publish">{{ if .Post.Published }}Update{{ else }}Publish{{ end }}</button>
+    </div>
+</form>
+{{ end }}
+
+{{ define "scripts" }}<script src="static/script.js"></script>{{ end }}
+{{ template "base" .}}

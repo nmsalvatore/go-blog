@@ -1,0 +1,190 @@
+:root {
+    --dark-color: black;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 100%;
+}
+
+body {
+    color: var(--dark-color);
+    font-family: Courier, monospace;
+    line-height: 1.3;
+}
+
+/* container styles */
+
+nav {
+    max-width: 420px;
+    margin: auto;
+    padding-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+main {
+    max-width: 420px;
+    margin: auto;
+    padding: 8rem 0;
+}
+
+nav + main {
+    padding: 6rem 0;
+}
+
+main header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+}
+
+main header:has(.editing) {
+    padding-bottom: 2rem;
+}
+
+.content {
+    padding-bottom: 1rem;
+}
+
+/* text styles */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-size: inherit;
+}
+
+h1.editing {
+    color: hsl(45 5% 60%);
+    font-style: italic;
+    font-weight: normal;
+}
+
+nav a {
+    display: block;
+}
+
+a {
+    color: inherit;
+    text-decoration-thickness: 1px;
+}
+
+a#logout {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+p {
+    padding-bottom: 1rem;
+}
+
+main header a {
+    text-decoration: none;
+}
+
+/* list styles */
+
+main ul {
+    padding-left: 1rem;
+}
+
+main ul.drafts {
+    list-style-type: circle;
+    margin-bottom: 1rem;
+}
+
+main ul.drafts li {
+    font-style: italic;
+}
+
+/* form styles */
+
+#login_form input {
+    font-weight: normal;
+    border: 1px solid;
+    border-radius: 12px;
+    box-shadow: inset 1px 1px lightgray;
+    padding: 8px 12px;
+}
+
+#login_form input[type="password"] {
+    margin-bottom: 2rem;
+}
+
+#logout_form {
+    margin: auto;
+    max-width: 420px;
+    padding: 2rem 0 1rem;
+    text-align: right;
+}
+
+label[for="intro"] {
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+#intro {
+    border: 1px solid;
+    border-radius: 12px;
+    box-shadow: inset 1px 1px lightgray;
+    padding: 8px 12px;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+}
+
+form input,
+form textarea,
+form button {
+    background: inherit;
+    border: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+form input:focus,
+form textarea:focus,
+form button:focus {
+    outline: none;
+}
+
+form input,
+form textarea {
+    width: 100%;
+}
+
+form input {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+form textarea {
+    resize: vertical;
+    field-sizing: content;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    padding-bottom: 1rem;
+}
+
+form button {
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+}
