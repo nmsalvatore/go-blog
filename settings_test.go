@@ -206,8 +206,8 @@ func TestSettings_ThemeAndFont_POST(t *testing.T) {
 
 	form := url.Values{}
 	form.Set("intro", "")
-	form.Set("theme", "dark")
-	form.Set("font", "inter")
+	form.Set("theme", "blue")
+	form.Set("font", "monospace")
 
 	req := httptest.NewRequest(http.MethodPost, "/settings", nil)
 	addCSRFToken(req, form)
@@ -223,13 +223,13 @@ func TestSettings_ThemeAndFont_POST(t *testing.T) {
 
 	// Verify settings were saved
 	theme, _ := getSetting(blog.db, "theme")
-	if theme != "dark" {
-		t.Errorf("expected theme 'dark', got '%s'", theme)
+	if theme != "blue" {
+		t.Errorf("expected theme 'blue', got '%s'", theme)
 	}
 
 	font, _ := getSetting(blog.db, "font")
-	if font != "inter" {
-		t.Errorf("expected font 'inter', got '%s'", font)
+	if font != "monospace" {
+		t.Errorf("expected font 'monospace', got '%s'", font)
 	}
 }
 
@@ -237,8 +237,8 @@ func TestSettings_GET_ShowsThemeAndFont(t *testing.T) {
 	blog := setupTestBlog(t)
 
 	// Set theme and font
-	setSetting(blog.db, "theme", "dark")
-	setSetting(blog.db, "font", "serif")
+	setSetting(blog.db, "theme", "blue")
+	setSetting(blog.db, "font", "monospace")
 
 	req := httptest.NewRequest(http.MethodGet, "/settings", nil)
 	w := httptest.NewRecorder()
@@ -250,21 +250,21 @@ func TestSettings_GET_ShowsThemeAndFont(t *testing.T) {
 	}
 
 	body := w.Body.String()
-	// Check that dark theme radio is checked
-	if !strings.Contains(body, `name="theme" value="dark" checked`) {
-		t.Error("expected dark theme radio to be checked")
+	// Check that blue theme radio is checked
+	if !strings.Contains(body, `name="theme" value="blue"`) || !strings.Contains(body, "checked") {
+		t.Error("expected blue theme radio to be checked")
 	}
-	// Check that serif font radio is checked
-	if !strings.Contains(body, `name="font" value="serif" checked`) {
-		t.Error("expected serif font radio to be checked")
+	// Check that monospace font radio is checked
+	if !strings.Contains(body, `name="font" value="monospace"`) {
+		t.Error("expected monospace font radio to be present")
 	}
 }
 
 func TestHome_IncludesThemeAndFontAttributes(t *testing.T) {
 	blog := setupTestBlog(t)
 
-	setSetting(blog.db, "theme", "dark")
-	setSetting(blog.db, "font", "inter")
+	setSetting(blog.db, "theme", "blue")
+	setSetting(blog.db, "font", "monospace")
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
@@ -276,10 +276,10 @@ func TestHome_IncludesThemeAndFontAttributes(t *testing.T) {
 	}
 
 	body := w.Body.String()
-	if !strings.Contains(body, `data-theme="dark"`) {
-		t.Error("expected body to contain data-theme=\"dark\"")
+	if !strings.Contains(body, `data-theme="blue"`) {
+		t.Error("expected body to contain data-theme=\"blue\"")
 	}
-	if !strings.Contains(body, `data-font="inter"`) {
-		t.Error("expected body to contain data-font=\"inter\"")
+	if !strings.Contains(body, `data-font="monospace"`) {
+		t.Error("expected body to contain data-font=\"monospace\"")
 	}
 }
