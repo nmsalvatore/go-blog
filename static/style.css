@@ -59,6 +59,16 @@ nav + main {
     padding: 6rem 0;
 }
 
+@media only screen and (max-width: calc(420px + 2rem)) {
+    main {
+        padding: 4rem 1rem;
+    }
+
+    nav + main {
+        padding: 3rem 1rem;
+    }
+}
+
 main header {
     display: flex;
     justify-content: space-between;
