@@ -145,6 +145,18 @@ func validateCSRF(r *http.Request) bool {
 	return subtle.ConstantTimeCompare([]byte(cookieToken), []byte(formToken)) == 1
 }
 
+func parseFormWithCSRF(w http.ResponseWriter, r *http.Request) bool {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return false
+	}
+	if !validateCSRF(r) {
+		http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+		return false
+	}
+	return true
+}
+
 // ensureCSRFToken returns existing token or creates a new one
 func ensureCSRFToken(w http.ResponseWriter, r *http.Request) string {
 	token := getCSRFToken(r)

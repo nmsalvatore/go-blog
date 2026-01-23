@@ -109,13 +109,7 @@ func (b *Blog) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
-			return
-		}
-
-		if !validateCSRF(r) {
-			http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+		if !parseFormWithCSRF(w, r) {
 			return
 		}
 
@@ -169,13 +163,7 @@ func (b *Blog) Edit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
-			return
-		}
-
-		if !validateCSRF(r) {
-			http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+		if !parseFormWithCSRF(w, r) {
 			return
 		}
 
@@ -228,13 +216,7 @@ func (b *Blog) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
-			return
-		}
-
-		if !validateCSRF(r) {
-			http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+		if !parseFormWithCSRF(w, r) {
 			return
 		}
 
@@ -266,13 +248,7 @@ func (b *Blog) Settings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
-			return
-		}
-
-		if !validateCSRF(r) {
-			http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+		if !parseFormWithCSRF(w, r) {
 			return
 		}
 
@@ -298,13 +274,7 @@ func (b *Blog) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
-			return
-		}
-
-		if !validateCSRF(r) {
-			http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+		if !parseFormWithCSRF(w, r) {
 			return
 		}
 
@@ -348,13 +318,7 @@ func (b *Blog) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
-	}
-
-	if !validateCSRF(r) {
-		http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+	if !parseFormWithCSRF(w, r) {
 		return
 	}
 
