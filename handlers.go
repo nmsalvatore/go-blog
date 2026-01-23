@@ -3,12 +3,14 @@ package main
 import (
 	"crypto/subtle"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 )
 
 func (b *Blog) render(w http.ResponseWriter, tmpl string, data map[string]any) {
 	if err := b.templates[tmpl].ExecuteTemplate(w, "base", data); err != nil {
+		log.Printf("rendering template %s: %v", tmpl, err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 }
