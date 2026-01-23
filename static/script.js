@@ -24,7 +24,9 @@ function autoResize(textarea) {
 
     textarea.style.height = "1px";
     const computed = getComputedStyle(textarea);
-    const border = parseFloat(computed.borderTopWidth) + parseFloat(computed.borderBottomWidth);
+    const border =
+        parseFloat(computed.borderTopWidth) +
+        parseFloat(computed.borderBottomWidth);
     const newHeight = textarea.scrollHeight + border;
     textarea.style.height = newHeight + "px";
 

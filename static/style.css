@@ -3,17 +3,22 @@
     --bg: white;
 }
 
-[data-theme="dark"] {
-    --text: #e0e0e0;
-    --bg: #1a1a1a;
+[data-theme="blue"] {
+    --text: hsl(200 50% 20%);
+    --bg: hsl(200 50% 95%);
 }
 
-[data-font="inter"] {
-    font-family: Inter, system-ui, sans-serif;
+[data-theme="sepia"] {
+    --text: hsl(45 25% 10%);
+    --bg: hsl(45 25% 95%);
 }
 
-[data-font="serif"] {
-    font-family: Georgia, serif;
+[data-font="monospace"] {
+    font-family: monospace;
+}
+
+[data-font="sans-serif"] {
+    font-family: sans-serif;
 }
 
 * {
@@ -176,7 +181,6 @@ fieldset legend {
 
 fieldset label {
     display: block;
-    margin-bottom: 0.25rem;
 }
 
 fieldset input[type="radio"] {
@@ -201,6 +205,16 @@ form button {
     font-family: inherit;
     font-size: inherit;
     line-height: inherit;
+}
+
+form input,
+form textarea {
+    background: white;
+}
+
+#blog_post_form input,
+#blog_post_form textarea {
+    background: inherit;
 }
 
 form input:focus,
@@ -228,6 +242,12 @@ form textarea {
     padding-bottom: 1rem;
 }
 
+form textarea[name="title"] {
+    padding-bottom: 0;
+    font-weight: bold;
+    resize: none;
+}
+
 form button {
     cursor: pointer;
     text-decoration: underline;
@@ -239,5 +259,5 @@ form button {
 .back-arrow {
     display: inline-block;
     text-decoration: none;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
 }

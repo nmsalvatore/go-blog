@@ -1,7 +1,7 @@
 {{ define "content" }}
-<form action="/new" method="post">
+<form id="blog_post_form" action="/new" method="post">
     <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
-    <input type="text" name="title" placeholder="Title">
+    <textarea name="title" placeholder="Title"></textarea>
     <textarea name="content" placeholder="Write something."></textarea>
     <div class="actions">
         <button type="submit" name="action" value="publish">Publish</button>
