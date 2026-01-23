@@ -2,11 +2,15 @@ package main
 
 import (
 	"html/template"
+	"regexp"
 	"strings"
 )
 
-func linebreaks(s string) template.HTML {
+var italicRegex = regexp.MustCompile(`\*([^*]+)\*`)
+
+func format(s string) template.HTML {
 	s = template.HTMLEscapeString(s)
+	s = italicRegex.ReplaceAllString(s, "<em>$1</em>")
 
 	paragraphs := strings.Split(s, "\n\n")
 	var result []string
@@ -26,7 +30,7 @@ func loadTemplates() map[string]*template.Template {
 	pages := []string{"home.html", "detail.html", "create.html", "edit.html", "delete.html", "settings.html", "login.html"}
 
 	funcs := template.FuncMap{
-		"linebreaks": linebreaks,
+		"format": format,
 	}
 
 	for _, page := range pages {

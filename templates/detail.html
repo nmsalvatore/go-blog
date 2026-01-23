@@ -5,7 +5,7 @@
         <h1 class="title">{{ .Post.Title }}</h1>
     </header>
     <div class="content">
-        {{ .Post.Content | linebreaks }}
+        {{ .Post.Content | format }}
     </div>
     {{ if .IsAuthenticated }}
     <div class="actions">
