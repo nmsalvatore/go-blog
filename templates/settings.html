@@ -9,15 +9,16 @@
 
     <fieldset>
         <legend>Theme</legend>
-        <label><input type="radio" name="theme" value="" {{if eq .Theme ""}}checked{{end}}> Light</label>
-        <label><input type="radio" name="theme" value="dark" {{if eq .Theme "dark"}}checked{{end}}> Dark</label>
+        <label><input type="radio" name="theme" value="" {{if eq .Theme ""}}checked{{end}}>Light</label>
+        <label><input type="radio" name="theme" value="blue" {{if eq .Theme "blue"}}checked{{end}}>Blue</label>
+        <label><input type="radio" name="theme" value="sepia" {{if eq .Theme "sepia"}}checked{{end}}>Sepia</label>
     </fieldset>
 
     <fieldset>
         <legend>Font</legend>
-        <label><input type="radio" name="font" value="" {{if eq .Font ""}}checked{{end}}> Courier</label>
-        <label><input type="radio" name="font" value="inter" {{if eq .Font "inter"}}checked{{end}}> Inter</label>
-        <label><input type="radio" name="font" value="serif" {{if eq .Font "serif"}}checked{{end}}> Georgia</label>
+        <label><input type="radio" name="font" value="" {{if eq .Font ""}}checked{{end}}>Courier</label>
+        <label><input type="radio" name="font" value="monospace" {{if eq .Font "monospace"}}checked{{end}}>Monospace</label>
+        <label><input type="radio" name="font" value="sans-serif" {{if eq .Font "sans-serif"}}checked{{end}}>Sans-serif</label>
     </fieldset>
 
     <div class="actions">
