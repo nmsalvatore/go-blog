@@ -6,6 +6,18 @@ document.querySelectorAll("textarea").forEach((textarea) => {
     autoResize(textarea);
 });
 
+document.querySelectorAll('input[name="theme"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+        document.body.dataset.theme = radio.value;
+    });
+});
+
+document.querySelectorAll('input[name="font"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+        document.body.dataset.font = radio.value;
+    });
+});
+
 function autoResize(textarea) {
     const scrollTop = window.scrollY;
     const scrollLeft = window.scrollX;
