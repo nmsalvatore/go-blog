@@ -208,4 +208,3 @@ func (b *Blog) isAuthenticated(r *http.Request) bool {
 	session, err := getSession(b.db, cookie.Value)
 	return err == nil && session != nil
 }
-
