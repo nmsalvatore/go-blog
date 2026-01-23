@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -45,8 +46,17 @@ func main() {
 	}
 
 	if err = cleanupExpiredSessions(db); err != nil {
-		log.Fatalf("cleaning up expired sessions: %v", err)
+		log.Printf("cleaning up expired sessions: %v", err)
 	}
+
+	go func() {
+		ticker := time.NewTicker(1 * time.Hour)
+		for range ticker.C {
+			if err := cleanupExpiredSessions(db); err != nil {
+				log.Printf("cleaning up expired sessions: %v", err)
+			}
+		}
+	}()
 
 	blog := NewBlog(db)
 
