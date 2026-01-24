@@ -38,6 +38,13 @@ func (b *Blog) render(w http.ResponseWriter, tmpl string, data map[string]any) {
 	}
 }
 
+func truncate(s string, max int) string {
+	if len(s) <= max {
+		return s
+	}
+	return s[:max] + "..."
+}
+
 func (b *Blog) getDisplaySettings() (theme, font string) {
 	theme, _ = getSetting(b.db, "theme")
 	font, _ = getSetting(b.db, "font")
@@ -88,6 +95,7 @@ func (b *Blog) Home(w http.ResponseWriter, r *http.Request) {
 		"Posts":           posts,
 		"Drafts":          drafts,
 		"Intro":           intro,
+		"Description":     truncate(intro, 160),
 		"IsAuthenticated": isAuth,
 		"CSRFToken":       ensureCSRFToken(w, r),
 		"Theme":           theme,
@@ -125,6 +133,7 @@ func (b *Blog) Detail(w http.ResponseWriter, r *http.Request) {
 	data := map[string]any{
 		"Title":           post.Title,
 		"Post":            post,
+		"Description":     truncate(post.Content, 160),
 		"IsAuthenticated": isAuth,
 		"CSRFToken":       ensureCSRFToken(w, r),
 		"Theme":           theme,
