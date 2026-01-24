@@ -361,7 +361,6 @@ form textarea {
 
 form input {
     display: block;
-    font-weight: bold;
     margin-bottom: 1rem;
 }
 
@@ -436,11 +435,23 @@ fieldset label {
     display: block;
 }
 
+fieldset input {
+    border: 1px solid;
+    border-radius: 12px;
+    box-shadow: inset 1px 1px var(--dull);
+    padding: 8px 12px;
+    margin-bottom: 0;
+}
+
 fieldset input[type="radio"] {
     display: inline;
     width: auto;
     margin-right: 0.5rem;
     font-weight: normal;
+}
+
+fieldset textarea {
+    margin-bottom: 0;
 }
 
 /* Form actions container */

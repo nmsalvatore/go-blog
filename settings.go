@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 )
 
 func getSetting(db *sql.DB, key string) (string, error) {
@@ -26,4 +27,16 @@ func setSetting(db *sql.DB, key, value string) error {
 		return fmt.Errorf("setting %q: %w", key, err)
 	}
 	return nil
+}
+
+// getBlogName returns the blog name with precedence:
+// Settings DB → Environment variable → Default
+func getBlogName(db *sql.DB) string {
+	if name, _ := getSetting(db, "blog_name"); name != "" {
+		return name
+	}
+	if name := os.Getenv("BLOG_NAME"); name != "" {
+		return name
+	}
+	return "Blog"
 }

@@ -1,6 +1,6 @@
 {{ define "content" }}
 <header>
-    <h1>Quiet Nothings</h1>
+    <h1>{{ .BlogName }}</h1>
     {{ if .IsAuthenticated }}
         <a id="new_post_btn" href="/new">&plus;</a>
     {{ end }}

@@ -283,3 +283,66 @@ func TestHome_IncludesThemeAndFontAttributes(t *testing.T) {
 		t.Error("expected body to contain data-font=\"monospace\"")
 	}
 }
+
+func TestGetBlogName(t *testing.T) {
+	tests := []struct {
+		name     string
+		dbValue  string
+		envValue string
+		want     string
+	}{
+		{
+			name:     "default when no DB or env",
+			dbValue:  "",
+			envValue: "",
+			want:     "Blog",
+		},
+		{
+			name:     "env value when no DB",
+			dbValue:  "",
+			envValue: "Env Blog",
+			want:     "Env Blog",
+		},
+		{
+			name:     "DB value takes precedence over env",
+			dbValue:  "DB Blog",
+			envValue: "Env Blog",
+			want:     "DB Blog",
+		},
+		{
+			name:     "DB value when no env",
+			dbValue:  "DB Blog",
+			envValue: "",
+			want:     "DB Blog",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db, err := openDB(":memory:")
+			if err != nil {
+				t.Fatalf("opening test database: %v", err)
+			}
+			defer db.Close()
+
+			if err = initDB(db); err != nil {
+				t.Fatalf("initializing test database: %v", err)
+			}
+
+			// Set DB value if provided
+			if tt.dbValue != "" {
+				if err := setSetting(db, "blog_name", tt.dbValue); err != nil {
+					t.Fatalf("setting blog_name: %v", err)
+				}
+			}
+
+			// Set env value
+			t.Setenv("BLOG_NAME", tt.envValue)
+
+			got := getBlogName(db)
+			if got != tt.want {
+				t.Errorf("getBlogName() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}

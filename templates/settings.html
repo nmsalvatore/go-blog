@@ -5,6 +5,11 @@
 <form action="/settings" method="post">
     <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
     <fieldset>
+        <legend>Blog Name</legend>
+        <input type="text" name="blog_name" value="{{ .BlogName }}" placeholder="My Blog">
+    </fieldset>
+
+    <fieldset>
         <legend>Introduction Text</legend>
         <textarea name="intro" id="intro" placeholder="Enter intro text for the home page.">{{ .Intro }}</textarea>
     </fieldset>
