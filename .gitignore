@@ -1,9 +1,37 @@
-.env
-blog.db
+# Binaries
 blog
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Databases
+blog.db
+*.db
+*.sqlite
+
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env.deploy.example
+
+# OS Specific
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
 
 # Claude
 .claude
-
-# Deployment
-deploy/.env.deploy
