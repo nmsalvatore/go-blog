@@ -12,7 +12,7 @@
 {{ if and .IsAuthenticated .Drafts }}
     <ul class="drafts">
         {{ range .Drafts }}
-            <li><a href="/edit/{{ .ID }}">{{ .Title }}</a></li>
+            <li><a href="/{{ .Slug }}">{{ .Title }}</a></li>
         {{ end }}
     </ul>
 {{ end }}

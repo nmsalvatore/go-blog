@@ -117,7 +117,7 @@
     --text: hsl(0 0% 10%);
     --dull: hsl(0 0% 45%);
     --accent: hsl(60 75% 50%);
-    --selection: hsl(0 0% 80%);
+    --selection: hsl(60 35% 80%);
     --faint: hsl(0 0% 90%);
     --bg: hsl(0 0% 95%);
 }
@@ -125,8 +125,8 @@
 [data-theme="blue"] {
     --text: hsl(200 50% 10%);
     --dull: hsl(200 15% 45%);
-    --accent: hsl(200 75% 70%);
-    --selection: hsl(200 25% 85%);
+    --accent: hsl(200 75% 60%);
+    --selection: hsl(200 35% 80%);
     --faint: hsl(200 15% 90%);
     --bg: hsl(200 25% 95%);
 }
@@ -135,7 +135,7 @@
     --text: hsl(45 50% 10%);
     --dull: hsl(45 15% 45%);
     --accent: hsl(45 75% 60%);
-    --selection: hsl(45 25% 80%);
+    --selection: hsl(45 35% 80%);
     --faint: hsl(45 15% 90%);
     --bg: hsl(45 25% 95%);
 }
@@ -384,7 +384,7 @@ form textarea[name="title"] {
     resize: none;
     font-size: 3rem;
     line-height: 1.1;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     text-wrap: balance;
 }
 
