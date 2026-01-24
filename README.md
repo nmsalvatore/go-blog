@@ -283,8 +283,12 @@ sudo systemctl status caddy
 ### Updating
 
 ```bash
+// change user to current user, pull changes, build 
 sudo chown -R $USER:$USER .
 git pull
 make build
+
+// change user back to blog
+sudo chown -R blog:blog .
 sudo systemctl restart blog
 ```
