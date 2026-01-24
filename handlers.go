@@ -457,12 +457,16 @@ func (b *Blog) Feed(w http.ResponseWriter, r *http.Request) {
 	}
 
 	blogName := getBlogName(b.db)
+	description := "A personal blog"
+	if intro, _ := getSetting(b.db, "intro"); intro != "" {
+		description = truncate(intro, 160)
+	}
 	feed := rss{
 		Version: "2.0",
 		Channel: rssChannel{
 			Title:       blogName,
 			Link:        baseURL,
-			Description: "A personal blog",
+			Description: description,
 			Items:       items,
 		},
 	}
