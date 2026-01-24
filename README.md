@@ -61,42 +61,52 @@ Everything is configured via the `.env` file.
 
 ## 🚢 Deployment & Production
 
-### 1. Reverse Proxy (Recommended)
-In production, it is highly recommended to run this app behind a reverse proxy like **Caddy** or **Nginx**. This handles HTTPS (SSL/TLS) and provides a professional setup.
+### Part A: Server Setup (Do Once)
 
-**Example Caddyfile:**
-```text
-your-blog.com {
-    reverse_proxy localhost:8080
-}
-```
+1.  **Systemd Service:**
+    This ensures the blog runs in the background and restarts if it crashes.
+    *   Copy [deploy/blog.service.example](./deploy/blog.service.example) to `/etc/systemd/system/blog.service` on your server.
+    *   Edit it to set your username and paths.
+    *   **Reload & Enable:**
+        ```bash
+        sudo systemctl daemon-reload
+        sudo systemctl enable blog
+        ```
+    *(The service will be started automatically the first time you run the deploy script below).*
 
-### 2. Systemd Service
-You should run the blog as a systemd service to ensure it starts automatically on boot and restarts if it crashes.
+2.  **Passwordless Restart:**
+    Allow the deployment script to restart the service without a password prompt.
+    *   Run `sudo visudo` on the server.
+    *   Add this line at the bottom (replace `youruser` with your actual username):
+        ```text
+        youruser ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart blog
+        ```
 
-See [deploy/blog.service.example](./deploy/blog.service.example) for a standard configuration template.
+3.  **Reverse Proxy (Caddy/Nginx):**
+    Expose your app to the world with HTTPS.
+    *   **Example Caddyfile:**
+        ```text
+        your-blog.com {
+            reverse_proxy localhost:8080
+        }
+        ```
 
-### 3. Passwordless Deployment
-The deployment script restarts the `blog` service on your server. To make this "one-command" without typing a password every time, you can allow your user to restart the service via `sudo` without a password.
+### Part B: Deploying Updates (Repeat Often)
 
-1. SSH into your server and run `sudo visudo`.
-2. Add this line at the bottom (replace `youruser` with your actual username):
-   ```text
-   youruser ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart blog
-   ```
+Once the server is ready, you can deploy from your local machine with a single command.
 
-### 4. One-Command Deploy
-1. Configure your server details in `deploy/.env.deploy` (copy from `.env.deploy.example`).
-2. Run the script:
-   ```bash
-   ./deploy/deploy.sh
-   ```
+1.  **Configure Local Settings:**
+    Create `deploy/.env.deploy` with your server details (only needed once):
+    ```bash
+    cp deploy/.env.deploy.example deploy/.env.deploy
+    ```
 
-The script will:
-1. Run `go test` locally (and stop if they fail).
-2. Build the binary for Linux.
-3. Upload only the necessary files (it **won't** overwrite your production `blog.db` or `.env`).
-4. Restart the service on your server instantly.
+2.  **Run Deploy Script:**
+    ```bash
+    ./deploy/deploy.sh
+    ```
+
+This script will run your tests locally, build the Linux binary, sync the files (protecting your production DB), and restart the server automatically.
 
 ---
 
