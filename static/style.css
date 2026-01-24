@@ -1,3 +1,25 @@
+@font-face {
+    font-family: "Courier Prime";
+    src:
+        local("Courier Prime Regular"),
+        local("CourierPrime-Regular"),
+        url("./fonts/CourierPrime-Regular.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Courier Prime";
+    src:
+        local("Courier Prime Bold"),
+        local("CourierPrime-Bold"),
+        url("./fonts/CourierPrime-Bold.woff2") format("woff2");
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --text: black;
     --bg: white;
@@ -37,7 +59,7 @@ html {
 body {
     background: var(--bg);
     color: var(--text);
-    font-family: Courier, monospace;
+    font-family: "Courier Prime", Courier, monospace;
     line-height: 1.3;
 }
 
