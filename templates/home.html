@@ -17,7 +17,7 @@
 {{ end }}
 <ul class="published">
     {{ range .Posts }}
-        <li><a href="/post/{{ .ID }}">{{ .Title }}</a></li>
+        <li><a href="/post/{{ .Slug }}">{{ .Title }}</a></li>
     {{ end }}
 </ul>
 {{ end }}

@@ -65,7 +65,7 @@ func main() {
 
 	// Public routes
 	http.HandleFunc("/", blog.Home)
-	http.HandleFunc("/post/{id}", blog.Detail)
+	http.HandleFunc("/post/{slug}", blog.Detail)
 	http.HandleFunc("/feed", blog.Feed)
 	http.HandleFunc("/admin", blog.Login)
 	http.HandleFunc("/logout", blog.Logout)

@@ -106,13 +106,13 @@ func (b *Blog) Home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b *Blog) Detail(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+	slug := r.PathValue("slug")
+	if slug == "" {
+		http.NotFound(w, r)
 		return
 	}
 
-	post, err := getPostByID(b.db, id)
+	post, err := getPostBySlug(b.db, slug)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -173,13 +173,13 @@ func (b *Blog) Create(w http.ResponseWriter, r *http.Request) {
 
 		published := action == "publish"
 
-		_, err := createPost(b.db, title, content, published)
+		slug, err := createPost(b.db, title, content, published)
 		if err != nil {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/post/"+slug, http.StatusSeeOther)
 	}
 }
 
@@ -230,12 +230,13 @@ func (b *Blog) Edit(w http.ResponseWriter, r *http.Request) {
 
 		published := action == "publish"
 
-		if err := updatePost(b.db, id, title, content, published); err != nil {
+		newSlug, err := updatePost(b.db, id, title, content, published)
+		if err != nil {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/post/"+newSlug, http.StatusSeeOther)
 	}
 }
 
@@ -429,7 +430,7 @@ func (b *Blog) Feed(w http.ResponseWriter, r *http.Request) {
 
 	items := make([]rssItem, len(posts))
 	for i, post := range posts {
-		postURL := fmt.Sprintf("%s/post/%d", baseURL, post.ID)
+		postURL := fmt.Sprintf("%s/post/%s", baseURL, post.Slug)
 		items[i] = rssItem{
 			Title:       post.Title,
 			Link:        postURL,

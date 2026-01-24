@@ -77,19 +77,19 @@ func TestHome_NotFound(t *testing.T) {
 func TestDetail(t *testing.T) {
 	blog := setupTestBlog(t)
 
-	id, err := createPost(blog.db, "Detail Test", "Detail content", true)
+	slug, err := createPost(blog.db, "Detail Test", "Detail content", true)
 	if err != nil {
 		t.Fatalf("creating test post: %v", err)
 	}
 
-	req := httptest.NewRequest(http.MethodGet, "/post/1", nil)
-	req.SetPathValue("id", "1")
+	req := httptest.NewRequest(http.MethodGet, "/post/"+slug, nil)
+	req.SetPathValue("slug", slug)
 	w := httptest.NewRecorder()
 
 	blog.Detail(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Errorf("expected status %d, got %d (post id: %d)", http.StatusOK, w.Code, id)
+		t.Errorf("expected status %d, got %d (post slug: %q)", http.StatusOK, w.Code, slug)
 	}
 
 	body := w.Body.String()
@@ -101,28 +101,14 @@ func TestDetail(t *testing.T) {
 func TestDetail_NotFound(t *testing.T) {
 	blog := setupTestBlog(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/post/999", nil)
-	req.SetPathValue("id", "999")
+	req := httptest.NewRequest(http.MethodGet, "/post/nonexistent", nil)
+	req.SetPathValue("slug", "nonexistent")
 	w := httptest.NewRecorder()
 
 	blog.Detail(w, req)
 
 	if w.Code != http.StatusNotFound {
 		t.Errorf("expected status %d, got %d", http.StatusNotFound, w.Code)
-	}
-}
-
-func TestDetail_InvalidID(t *testing.T) {
-	blog := setupTestBlog(t)
-
-	req := httptest.NewRequest(http.MethodGet, "/post/abc", nil)
-	req.SetPathValue("id", "abc")
-	w := httptest.NewRecorder()
-
-	blog.Detail(w, req)
-
-	if w.Code != http.StatusBadRequest {
-		t.Errorf("expected status %d, got %d", http.StatusBadRequest, w.Code)
 	}
 }
 
@@ -304,10 +290,10 @@ func TestDetail_Draft_Unauthenticated(t *testing.T) {
 	blog := setupTestBlog(t)
 
 	// Create a draft post
-	createPost(blog.db, "Draft Post", "Draft content", false)
+	slug, _ := createPost(blog.db, "Draft Post", "Draft content", false)
 
-	req := httptest.NewRequest(http.MethodGet, "/post/1", nil)
-	req.SetPathValue("id", "1")
+	req := httptest.NewRequest(http.MethodGet, "/post/"+slug, nil)
+	req.SetPathValue("slug", slug)
 	w := httptest.NewRecorder()
 
 	blog.Detail(w, req)
@@ -321,13 +307,13 @@ func TestDetail_Draft_Authenticated(t *testing.T) {
 	blog := setupTestBlog(t)
 
 	// Create a draft post
-	createPost(blog.db, "Draft Post", "Draft content", false)
+	slug, _ := createPost(blog.db, "Draft Post", "Draft content", false)
 
 	// Create a session for authentication
 	token, _ := createSession(blog.db, 1)
 
-	req := httptest.NewRequest(http.MethodGet, "/post/1", nil)
-	req.SetPathValue("id", "1")
+	req := httptest.NewRequest(http.MethodGet, "/post/"+slug, nil)
+	req.SetPathValue("slug", slug)
 	req.AddCookie(&http.Cookie{Name: sessionCookieName, Value: token})
 	w := httptest.NewRecorder()
 
@@ -530,5 +516,128 @@ func TestFeed_EscapesXML(t *testing.T) {
 	}
 	if !strings.Contains(body, "&lt;script&gt;") {
 		t.Error("expected &lt;script&gt; in escaped title")
+	}
+}
+
+// Slug-based URL tests
+
+func TestDetail_BySlug(t *testing.T) {
+	blog := setupTestBlog(t)
+
+	createPost(blog.db, "My Test Post", "Test content", true)
+
+	req := httptest.NewRequest(http.MethodGet, "/post/my-test-post", nil)
+	req.SetPathValue("slug", "my-test-post")
+	w := httptest.NewRecorder()
+
+	blog.Detail(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status %d, got %d", http.StatusOK, w.Code)
+	}
+
+	body := w.Body.String()
+	if !strings.Contains(body, "My Test Post") {
+		t.Error("expected response to contain 'My Test Post'")
+	}
+}
+
+func TestDetail_BySlug_NotFound(t *testing.T) {
+	blog := setupTestBlog(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/post/nonexistent", nil)
+	req.SetPathValue("slug", "nonexistent")
+	w := httptest.NewRecorder()
+
+	blog.Detail(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected status %d, got %d", http.StatusNotFound, w.Code)
+	}
+}
+
+func TestDetail_Draft_BySlug_Unauthenticated(t *testing.T) {
+	blog := setupTestBlog(t)
+
+	createPost(blog.db, "Draft Post", "Draft content", false)
+
+	req := httptest.NewRequest(http.MethodGet, "/post/draft-post", nil)
+	req.SetPathValue("slug", "draft-post")
+	w := httptest.NewRecorder()
+
+	blog.Detail(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected status %d for draft without auth, got %d", http.StatusNotFound, w.Code)
+	}
+}
+
+func TestDetail_Draft_BySlug_Authenticated(t *testing.T) {
+	blog := setupTestBlog(t)
+
+	createPost(blog.db, "Draft Post", "Draft content", false)
+	token, _ := createSession(blog.db, 1)
+
+	req := httptest.NewRequest(http.MethodGet, "/post/draft-post", nil)
+	req.SetPathValue("slug", "draft-post")
+	req.AddCookie(&http.Cookie{Name: sessionCookieName, Value: token})
+	w := httptest.NewRecorder()
+
+	blog.Detail(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status %d for draft with auth, got %d", http.StatusOK, w.Code)
+	}
+}
+
+func TestFeed_UsesSlugURLs(t *testing.T) {
+	blog := setupTestBlog(t)
+
+	createPost(blog.db, "My Post Title", "Content", true)
+
+	req := httptest.NewRequest(http.MethodGet, "/feed", nil)
+	req.Host = "example.com"
+	w := httptest.NewRecorder()
+
+	blog.Feed(w, req)
+
+	body := w.Body.String()
+
+	// Should use slug URL, not ID URL
+	if !strings.Contains(body, "/post/my-post-title") {
+		t.Error("expected feed to contain slug URL '/post/my-post-title'")
+	}
+	if strings.Contains(body, "/post/1") {
+		t.Error("feed should not contain ID-based URL '/post/1'")
+	}
+}
+
+func TestEdit_POST_RedirectsToSlug(t *testing.T) {
+	blog := setupTestBlog(t)
+
+	createPost(blog.db, "Original Title", "Original content", true)
+
+	form := url.Values{}
+	form.Set("title", "Updated Title")
+	form.Set("content", "Updated content")
+	form.Set("action", "publish")
+
+	req := httptest.NewRequest(http.MethodPost, "/edit/1", nil)
+	addCSRFToken(req, form)
+	req.Body = io.NopCloser(strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.SetPathValue("id", "1")
+	w := httptest.NewRecorder()
+
+	blog.Edit(w, req)
+
+	if w.Code != http.StatusSeeOther {
+		t.Errorf("expected status %d, got %d", http.StatusSeeOther, w.Code)
+	}
+
+	// Verify redirect location is the slug URL, not home
+	location := w.Header().Get("Location")
+	if location != "/post/updated-title" {
+		t.Errorf("expected redirect to '/post/updated-title', got %q", location)
 	}
 }

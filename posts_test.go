@@ -34,13 +34,13 @@ func TestGetPosts_Empty(t *testing.T) {
 func TestCreatePost(t *testing.T) {
 	blog := setupTestDB(t)
 
-	id, err := createPost(blog.db, "Test Title", "Test Content", true)
+	slug, err := createPost(blog.db, "Test Title", "Test Content", true)
 	if err != nil {
 		t.Fatalf("createPost() error: %v", err)
 	}
 
-	if id != 1 {
-		t.Errorf("expected id 1, got %d", id)
+	if slug != "test-title" {
+		t.Errorf("expected slug 'test-title', got %q", slug)
 	}
 
 	post, err := getPostByID(blog.db, 1)
@@ -102,9 +102,13 @@ func TestUpdatePost(t *testing.T) {
 
 	createPost(blog.db, "Original", "Original content", true)
 
-	err := updatePost(blog.db, 1, "Updated", "Updated content", true)
+	slug, err := updatePost(blog.db, 1, "Updated", "Updated content", true)
 	if err != nil {
 		t.Fatalf("updatePost() error: %v", err)
+	}
+
+	if slug != "updated" {
+		t.Errorf("expected slug 'updated', got %q", slug)
 	}
 
 	post, _ := getPostByID(blog.db, 1)
@@ -181,12 +185,12 @@ func TestGetPosts_IncludesDrafts(t *testing.T) {
 func TestCreatePost_Draft(t *testing.T) {
 	blog := setupTestDB(t)
 
-	id, err := createPost(blog.db, "Draft Title", "Draft Content", false)
+	_, err := createPost(blog.db, "Draft Title", "Draft Content", false)
 	if err != nil {
 		t.Fatalf("createPost() error: %v", err)
 	}
 
-	post, _ := getPostByID(blog.db, int(id))
+	post, _ := getPostByID(blog.db, 1)
 	if post.Published {
 		t.Error("expected post to be a draft")
 	}
@@ -197,7 +201,7 @@ func TestUpdatePost_PublishDraft(t *testing.T) {
 
 	createPost(blog.db, "Draft", "Content", false)
 
-	err := updatePost(blog.db, 1, "Draft", "Content", true)
+	_, err := updatePost(blog.db, 1, "Draft", "Content", true)
 	if err != nil {
 		t.Fatalf("updatePost() error: %v", err)
 	}
@@ -213,7 +217,7 @@ func TestUpdatePost_UnpublishPost(t *testing.T) {
 
 	createPost(blog.db, "Published", "Content", true)
 
-	err := updatePost(blog.db, 1, "Published", "Content", false)
+	_, err := updatePost(blog.db, 1, "Published", "Content", false)
 	if err != nil {
 		t.Fatalf("updatePost() error: %v", err)
 	}
@@ -221,5 +225,283 @@ func TestUpdatePost_UnpublishPost(t *testing.T) {
 	post, _ := getPostByID(blog.db, 1)
 	if post.Published {
 		t.Error("expected post to be draft after update")
+	}
+}
+
+// Slug tests
+
+func TestGenerateSlug(t *testing.T) {
+	tests := []struct {
+		name     string
+		title    string
+		expected string
+	}{
+		{"simple title", "Hello World", "hello-world"},
+		{"lowercase", "hello world", "hello-world"},
+		{"uppercase", "HELLO WORLD", "hello-world"},
+		{"special chars", "Hello, World!", "hello-world"},
+		{"multiple spaces", "Hello   World", "hello-world"},
+		{"leading/trailing spaces", "  Hello World  ", "hello-world"},
+		{"numbers", "Top 10 Posts", "top-10-posts"},
+		{"apostrophe", "It's a Test", "its-a-test"},
+		{"ampersand", "Cats & Dogs", "cats-dogs"},
+		{"dashes preserved", "Pre-existing Slug", "pre-existing-slug"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := generateSlug(tt.title)
+			if result != tt.expected {
+				t.Errorf("generateSlug(%q) = %q, want %q", tt.title, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestGenerateSlug_EdgeCases(t *testing.T) {
+	tests := []struct {
+		name     string
+		title    string
+		expected string
+	}{
+		{"empty string", "", ""},
+		{"only special chars", "!@#$%", ""},
+		{"leading hyphens", "---Hello", "hello"},
+		{"trailing hyphens", "Hello---", "hello"},
+		{"multiple hyphens", "Hello---World", "hello-world"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := generateSlug(tt.title)
+			if result != tt.expected {
+				t.Errorf("generateSlug(%q) = %q, want %q", tt.title, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestEnsureUniqueSlug(t *testing.T) {
+	blog := setupTestDB(t)
+
+	// Create a post with slug "hello-world"
+	createPost(blog.db, "Hello World", "Content", true)
+
+	tests := []struct {
+		name      string
+		slug      string
+		excludeID int
+		expected  string
+	}{
+		{"unique slug", "different-slug", 0, "different-slug"},
+		{"duplicate slug", "hello-world", 0, "hello-world-2"},
+		{"same post (excluded)", "hello-world", 1, "hello-world"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := ensureUniqueSlug(blog.db, tt.slug, tt.excludeID)
+			if err != nil {
+				t.Fatalf("ensureUniqueSlug() error: %v", err)
+			}
+			if result != tt.expected {
+				t.Errorf("ensureUniqueSlug(%q, %d) = %q, want %q", tt.slug, tt.excludeID, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestEnsureUniqueSlug_MultipleDuplicates(t *testing.T) {
+	blog := setupTestDB(t)
+
+	// Create posts with slugs hello-world, hello-world-2
+	createPost(blog.db, "Hello World", "Content", true)
+	createPost(blog.db, "Hello World", "Content", true) // Should get hello-world-2
+
+	// Third duplicate should get hello-world-3
+	slug, err := ensureUniqueSlug(blog.db, "hello-world", 0)
+	if err != nil {
+		t.Fatalf("ensureUniqueSlug() error: %v", err)
+	}
+	if slug != "hello-world-3" {
+		t.Errorf("expected 'hello-world-3', got %q", slug)
+	}
+}
+
+func TestCreatePost_GeneratesSlug(t *testing.T) {
+	blog := setupTestDB(t)
+
+	slug, err := createPost(blog.db, "My First Post", "Content", true)
+	if err != nil {
+		t.Fatalf("createPost() error: %v", err)
+	}
+
+	if slug != "my-first-post" {
+		t.Errorf("expected slug 'my-first-post', got %q", slug)
+	}
+
+	post, _ := getPostByID(blog.db, 1)
+	if post.Slug != "my-first-post" {
+		t.Errorf("expected post.Slug 'my-first-post', got %q", post.Slug)
+	}
+}
+
+func TestCreatePost_UniqueSlug(t *testing.T) {
+	blog := setupTestDB(t)
+
+	slug1, _ := createPost(blog.db, "Hello World", "Content 1", true)
+	slug2, _ := createPost(blog.db, "Hello World", "Content 2", true)
+
+	if slug1 != "hello-world" {
+		t.Errorf("expected first slug 'hello-world', got %q", slug1)
+	}
+	if slug2 != "hello-world-2" {
+		t.Errorf("expected second slug 'hello-world-2', got %q", slug2)
+	}
+}
+
+func TestGetPostBySlug(t *testing.T) {
+	blog := setupTestDB(t)
+
+	createPost(blog.db, "Test Post", "Content", true)
+
+	post, err := getPostBySlug(blog.db, "test-post")
+	if err != nil {
+		t.Fatalf("getPostBySlug() error: %v", err)
+	}
+	if post == nil {
+		t.Fatal("expected post, got nil")
+	}
+	if post.Title != "Test Post" {
+		t.Errorf("expected title 'Test Post', got %q", post.Title)
+	}
+}
+
+func TestGetPostBySlug_NotFound(t *testing.T) {
+	blog := setupTestDB(t)
+
+	post, err := getPostBySlug(blog.db, "nonexistent")
+	if err != nil {
+		t.Fatalf("getPostBySlug() error: %v", err)
+	}
+	if post != nil {
+		t.Error("expected nil for nonexistent slug")
+	}
+}
+
+func TestUpdatePost_UpdatesSlug(t *testing.T) {
+	blog := setupTestDB(t)
+
+	createPost(blog.db, "Original Title", "Content", true)
+
+	newSlug, err := updatePost(blog.db, 1, "New Title", "Content", true)
+	if err != nil {
+		t.Fatalf("updatePost() error: %v", err)
+	}
+
+	if newSlug != "new-title" {
+		t.Errorf("expected new slug 'new-title', got %q", newSlug)
+	}
+
+	post, _ := getPostByID(blog.db, 1)
+	if post.Slug != "new-title" {
+		t.Errorf("expected post.Slug 'new-title', got %q", post.Slug)
+	}
+}
+
+func TestUpdatePost_SameTitleKeepsSlug(t *testing.T) {
+	blog := setupTestDB(t)
+
+	createPost(blog.db, "My Title", "Content", true)
+
+	// Update with same title - slug should remain unchanged
+	newSlug, err := updatePost(blog.db, 1, "My Title", "Updated content", true)
+	if err != nil {
+		t.Fatalf("updatePost() error: %v", err)
+	}
+
+	if newSlug != "my-title" {
+		t.Errorf("expected slug to remain 'my-title', got %q", newSlug)
+	}
+}
+
+func TestGetPosts_IncludesSlug(t *testing.T) {
+	blog := setupTestDB(t)
+
+	createPost(blog.db, "Test Post", "Content", true)
+
+	posts, err := getPosts(blog.db)
+	if err != nil {
+		t.Fatalf("getPosts() error: %v", err)
+	}
+
+	if len(posts) != 1 {
+		t.Fatalf("expected 1 post, got %d", len(posts))
+	}
+
+	if posts[0].Slug != "test-post" {
+		t.Errorf("expected slug 'test-post', got %q", posts[0].Slug)
+	}
+}
+
+func TestCreatePost_EmptySlugFallback(t *testing.T) {
+	blog := setupTestDB(t)
+
+	// Title with only special chars produces empty slug - should fallback to "untitled"
+	slug, err := createPost(blog.db, "!@#$%", "Content", true)
+	if err != nil {
+		t.Fatalf("createPost() error: %v", err)
+	}
+
+	if slug != "untitled" {
+		t.Errorf("expected slug 'untitled', got %q", slug)
+	}
+
+	post, _ := getPostByID(blog.db, 1)
+	if post.Slug != "untitled" {
+		t.Errorf("expected post.Slug 'untitled', got %q", post.Slug)
+	}
+}
+
+func TestCreatePost_MultipleUntitled(t *testing.T) {
+	blog := setupTestDB(t)
+
+	// First post with special chars only
+	slug1, err := createPost(blog.db, "!@#$%", "Content 1", true)
+	if err != nil {
+		t.Fatalf("createPost() error: %v", err)
+	}
+	if slug1 != "untitled" {
+		t.Errorf("expected first slug 'untitled', got %q", slug1)
+	}
+
+	// Second post with special chars only - should get "untitled-2"
+	slug2, err := createPost(blog.db, "^&*()", "Content 2", true)
+	if err != nil {
+		t.Fatalf("createPost() error: %v", err)
+	}
+	if slug2 != "untitled-2" {
+		t.Errorf("expected second slug 'untitled-2', got %q", slug2)
+	}
+}
+
+func TestUpdatePost_EmptySlugFallback(t *testing.T) {
+	blog := setupTestDB(t)
+
+	createPost(blog.db, "Normal Title", "Content", true)
+
+	// Update to a title that produces empty slug
+	newSlug, err := updatePost(blog.db, 1, "!@#$%", "Updated content", true)
+	if err != nil {
+		t.Fatalf("updatePost() error: %v", err)
+	}
+
+	if newSlug != "untitled" {
+		t.Errorf("expected slug 'untitled', got %q", newSlug)
+	}
+
+	post, _ := getPostByID(blog.db, 1)
+	if post.Slug != "untitled" {
+		t.Errorf("expected post.Slug 'untitled', got %q", post.Slug)
 	}
 }

@@ -68,6 +68,67 @@ func migrateDB(db *sql.DB) error {
 		}
 	}
 
+	// Check if slug column exists
+	err = db.QueryRow(`SELECT COUNT(*) FROM pragma_table_info('posts') WHERE name='slug'`).Scan(&count)
+	if err != nil {
+		return err
+	}
+
+	if count == 0 {
+		// Add slug column
+		_, err = db.Exec(`ALTER TABLE posts ADD COLUMN slug TEXT`)
+		if err != nil {
+			return err
+		}
+
+		// Generate slugs for existing posts
+		if err := migrateExistingSlugs(db); err != nil {
+			return err
+		}
+
+		// Create unique index on slug
+		_, err = db.Exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug)`)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func migrateExistingSlugs(db *sql.DB) error {
+	rows, err := db.Query(`SELECT id, title FROM posts WHERE slug IS NULL OR slug = ''`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	type postToUpdate struct {
+		id    int
+		title string
+	}
+
+	var posts []postToUpdate
+	for rows.Next() {
+		var p postToUpdate
+		if err := rows.Scan(&p.id, &p.title); err != nil {
+			return err
+		}
+		posts = append(posts, p)
+	}
+
+	for _, p := range posts {
+		slug := generateSlug(p.title)
+		uniqueSlug, err := ensureUniqueSlug(db, slug, p.id)
+		if err != nil {
+			return err
+		}
+		_, err = db.Exec(`UPDATE posts SET slug = ? WHERE id = ?`, uniqueSlug, p.id)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
