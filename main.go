@@ -67,7 +67,7 @@ func main() {
 	http.HandleFunc("/", blog.Home)
 	http.HandleFunc("/post/{id}", blog.Detail)
 	http.HandleFunc("/feed", blog.Feed)
-	http.HandleFunc("/login", blog.Login)
+	http.HandleFunc("/admin", blog.Login)
 	http.HandleFunc("/logout", blog.Logout)
 
 	// Protected routes

@@ -27,7 +27,7 @@ func format(s string) template.HTML {
 
 func loadTemplates() map[string]*template.Template {
 	templates := make(map[string]*template.Template)
-	pages := []string{"home.html", "detail.html", "create.html", "edit.html", "delete.html", "settings.html", "login.html"}
+	pages := []string{"home.html", "detail.html", "create.html", "edit.html", "delete.html", "settings.html", "admin.html"}
 
 	funcs := template.FuncMap{
 		"format": format,

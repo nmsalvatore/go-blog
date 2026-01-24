@@ -340,7 +340,7 @@ func (b *Blog) Login(w http.ResponseWriter, r *http.Request) {
 			"Theme":     theme,
 			"Font":      font,
 		}
-		b.render(w, "login.html", data)
+		b.render(w, "admin.html", data)
 		return
 	}
 
@@ -362,7 +362,7 @@ func (b *Blog) Login(w http.ResponseWriter, r *http.Request) {
 				"Font":      font,
 			}
 			w.WriteHeader(http.StatusUnauthorized)
-			b.render(w, "login.html", data)
+			b.render(w, "admin.html", data)
 			return
 		}
 
