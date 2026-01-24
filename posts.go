@@ -8,7 +8,8 @@ import (
 )
 
 // reservedSlugs contains paths that cannot be used as post slugs
-// to prevent collision with application routes
+// to prevent collision with application routes.
+// NOTE: Keep in sync with routes defined in main.go
 var reservedSlugs = map[string]bool{
 	"admin":    true,
 	"logout":   true,
@@ -18,6 +19,7 @@ var reservedSlugs = map[string]bool{
 	"delete":   true,
 	"settings": true,
 	"static":   true,
+	"untitled": true, // fallback slug for empty titles
 }
 
 // isReservedSlug checks if a slug conflicts with application routes
@@ -25,7 +27,9 @@ func isReservedSlug(slug string) bool {
 	return reservedSlugs[slug]
 }
 
-// generateSlug creates a URL-friendly slug from a title
+// generateSlug creates a URL-friendly slug from a title.
+// Output contains only [a-z0-9-] characters, which are safe for URLs
+// without additional encoding.
 func generateSlug(title string) string {
 	// Convert to lowercase
 	slug := strings.ToLower(title)

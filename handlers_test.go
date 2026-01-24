@@ -628,3 +628,22 @@ func TestEdit_POST_RedirectsToSlug(t *testing.T) {
 		t.Errorf("expected redirect to '/updated-title', got %q", location)
 	}
 }
+
+func TestLegacyPostRedirect(t *testing.T) {
+	blog := setupTestBlog(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/post/my-old-slug", nil)
+	req.SetPathValue("slug", "my-old-slug")
+	w := httptest.NewRecorder()
+
+	blog.LegacyPostRedirect(w, req)
+
+	if w.Code != http.StatusMovedPermanently {
+		t.Errorf("expected status %d, got %d", http.StatusMovedPermanently, w.Code)
+	}
+
+	location := w.Header().Get("Location")
+	if location != "/my-old-slug" {
+		t.Errorf("expected redirect to '/my-old-slug', got %q", location)
+	}
+}

@@ -101,6 +101,12 @@ func (b *Blog) Home(w http.ResponseWriter, r *http.Request) {
 	b.render(w, "home.html", data)
 }
 
+// LegacyPostRedirect redirects old /post/{slug} URLs to /{slug}
+func (b *Blog) LegacyPostRedirect(w http.ResponseWriter, r *http.Request) {
+	slug := r.PathValue("slug")
+	http.Redirect(w, r, "/"+url.PathEscape(slug), http.StatusMovedPermanently)
+}
+
 func (b *Blog) Detail(w http.ResponseWriter, r *http.Request) {
 	slug := r.PathValue("slug")
 	if slug == "" {

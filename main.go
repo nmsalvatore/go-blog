@@ -64,6 +64,7 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	// Public routes
+	// NOTE: When adding new routes, update reservedSlugs in posts.go
 	http.HandleFunc("GET /{$}", blog.Home)
 	http.HandleFunc("GET /{slug}", blog.Detail)
 	http.HandleFunc("GET /feed", blog.Feed)
@@ -71,7 +72,11 @@ func main() {
 	http.HandleFunc("POST /admin", blog.Login)
 	http.HandleFunc("POST /logout", blog.Logout)
 
+	// Backward compatibility for old /post/{slug} URLs
+	http.HandleFunc("GET /post/{slug}", blog.LegacyPostRedirect)
+
 	// Protected routes
+	// NOTE: When adding new routes, update reservedSlugs in posts.go
 	http.HandleFunc("GET /new", blog.requireAuth(blog.Create))
 	http.HandleFunc("POST /new", blog.requireAuth(blog.Create))
 	http.HandleFunc("GET /edit/{id}", blog.requireAuth(blog.Edit))

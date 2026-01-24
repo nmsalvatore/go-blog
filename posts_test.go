@@ -324,6 +324,7 @@ func TestIsReservedSlug(t *testing.T) {
 		{"delete", true},
 		{"settings", true},
 		{"static", true},
+		{"untitled", true},
 		{"my-post", false},
 		{"hello-world", false},
 		{"admin-panel", false}, // suffix doesn't make it reserved
@@ -515,41 +516,42 @@ func TestGetPosts_IncludesSlug(t *testing.T) {
 func TestCreatePost_EmptySlugFallback(t *testing.T) {
 	blog := setupTestDB(t)
 
-	// Title with only special chars produces empty slug - should fallback to "untitled"
+	// Title with only special chars produces empty slug - falls back to "untitled"
+	// Since "untitled" is reserved, gets "untitled-2"
 	slug, err := createPost(blog.db, "!@#$%", "Content", true)
 	if err != nil {
 		t.Fatalf("createPost() error: %v", err)
 	}
 
-	if slug != "untitled" {
-		t.Errorf("expected slug 'untitled', got %q", slug)
+	if slug != "untitled-2" {
+		t.Errorf("expected slug 'untitled-2', got %q", slug)
 	}
 
 	post, _ := getPostByID(blog.db, 1)
-	if post.Slug != "untitled" {
-		t.Errorf("expected post.Slug 'untitled', got %q", post.Slug)
+	if post.Slug != "untitled-2" {
+		t.Errorf("expected post.Slug 'untitled-2', got %q", post.Slug)
 	}
 }
 
 func TestCreatePost_MultipleUntitled(t *testing.T) {
 	blog := setupTestDB(t)
 
-	// First post with special chars only
+	// First post with special chars only - gets "untitled-2" (untitled is reserved)
 	slug1, err := createPost(blog.db, "!@#$%", "Content 1", true)
 	if err != nil {
 		t.Fatalf("createPost() error: %v", err)
 	}
-	if slug1 != "untitled" {
-		t.Errorf("expected first slug 'untitled', got %q", slug1)
+	if slug1 != "untitled-2" {
+		t.Errorf("expected first slug 'untitled-2', got %q", slug1)
 	}
 
-	// Second post with special chars only - should get "untitled-2"
+	// Second post with special chars only - should get "untitled-3"
 	slug2, err := createPost(blog.db, "^&*()", "Content 2", true)
 	if err != nil {
 		t.Fatalf("createPost() error: %v", err)
 	}
-	if slug2 != "untitled-2" {
-		t.Errorf("expected second slug 'untitled-2', got %q", slug2)
+	if slug2 != "untitled-3" {
+		t.Errorf("expected second slug 'untitled-3', got %q", slug2)
 	}
 }
 
@@ -559,33 +561,8 @@ func TestUpdatePost_EmptySlugFallback(t *testing.T) {
 	createPost(blog.db, "Normal Title", "Content", true)
 
 	// Update to a title that produces empty slug
+	// Since "untitled" is reserved, gets "untitled-2"
 	newSlug, err := updatePost(blog.db, 1, "!@#$%", "Updated content", true)
-	if err != nil {
-		t.Fatalf("updatePost() error: %v", err)
-	}
-
-	if newSlug != "untitled" {
-		t.Errorf("expected slug 'untitled', got %q", newSlug)
-	}
-
-	post, _ := getPostByID(blog.db, 1)
-	if post.Slug != "untitled" {
-		t.Errorf("expected post.Slug 'untitled', got %q", post.Slug)
-	}
-}
-
-func TestUpdatePost_EmptySlugFallback_WhenUntitledExists(t *testing.T) {
-	blog := setupTestDB(t)
-
-	// Create a post that will have slug "untitled"
-	createPost(blog.db, "!@#$%", "Content 1", true)
-
-	// Create a second post with normal title
-	createPost(blog.db, "Normal Title", "Content 2", true)
-
-	// Update second post to a title that produces empty slug
-	// Should get "untitled-2" since "untitled" already exists
-	newSlug, err := updatePost(blog.db, 2, "^&*()", "Updated content", true)
 	if err != nil {
 		t.Fatalf("updatePost() error: %v", err)
 	}
@@ -594,8 +571,34 @@ func TestUpdatePost_EmptySlugFallback_WhenUntitledExists(t *testing.T) {
 		t.Errorf("expected slug 'untitled-2', got %q", newSlug)
 	}
 
-	post, _ := getPostByID(blog.db, 2)
+	post, _ := getPostByID(blog.db, 1)
 	if post.Slug != "untitled-2" {
 		t.Errorf("expected post.Slug 'untitled-2', got %q", post.Slug)
+	}
+}
+
+func TestUpdatePost_EmptySlugFallback_WhenUntitledExists(t *testing.T) {
+	blog := setupTestDB(t)
+
+	// Create a post that will have slug "untitled-2" (untitled is reserved)
+	createPost(blog.db, "!@#$%", "Content 1", true)
+
+	// Create a second post with normal title
+	createPost(blog.db, "Normal Title", "Content 2", true)
+
+	// Update second post to a title that produces empty slug
+	// Should get "untitled-3" since "untitled" is reserved and "untitled-2" exists
+	newSlug, err := updatePost(blog.db, 2, "^&*()", "Updated content", true)
+	if err != nil {
+		t.Fatalf("updatePost() error: %v", err)
+	}
+
+	if newSlug != "untitled-3" {
+		t.Errorf("expected slug 'untitled-3', got %q", newSlug)
+	}
+
+	post, _ := getPostByID(blog.db, 2)
+	if post.Slug != "untitled-3" {
+		t.Errorf("expected post.Slug 'untitled-3', got %q", post.Slug)
 	}
 }
