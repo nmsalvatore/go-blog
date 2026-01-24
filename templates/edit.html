@@ -9,6 +9,7 @@
     <div class="actions">
         <button type="submit" name="action" value="publish">{{ if .Post.Published }}Publish changes{{ else }}Publish{{ end }}</button>
         <button type="submit" name="action" value="draft">{{ if .Post.Published }}Convert to draft{{ else }}Update draft{{ end }}</button>
+        <a class="btn" href="/delete/{{ .Post.ID }}">Delete</a>
     </div>
 </form>
 {{ end }}

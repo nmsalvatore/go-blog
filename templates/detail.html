@@ -10,7 +10,6 @@
     {{ if .IsAuthenticated }}
     <div class="actions">
         <a class="btn" href="/edit/{{ .Post.ID }}">Edit</a>
-        <a class="btn" href="/delete/{{ .Post.ID }}">Delete</a>
     </div>
     {{ end }}
 </article>
