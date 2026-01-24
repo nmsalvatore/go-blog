@@ -13,7 +13,7 @@ build:vet
 build-linux:
 	GOOS=linux GOARCH=amd64 go build -o blog .
 
-run:
+run:vet
 	go run .
 
 test:
