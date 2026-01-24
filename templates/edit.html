@@ -1,12 +1,17 @@
 {{ define "content" }}
-<p class="editing">Editing "{{ .Post.Title }}"</p>
+<p class="editing">{{ if .Post.Published }}Editing published post{{ else}}Editing draft{{ end }}</p>
 <form id="blog_post_form" action="/edit/{{ .Post.ID }}" method="post">
     <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
     <textarea name="title" placeholder="Title">{{ .Post.Title }}</textarea>
     <textarea name="content" placeholder="Write something.">{{ .Post.Content }}</textarea>
     <div class="actions">
-        <button type="submit" name="action" value="publish">{{ if .Post.Published }}Publish changes{{ else }}Publish{{ end }}</button>
-        <button type="submit" name="action" value="draft">{{ if .Post.Published }}Convert to draft{{ else }}Update draft{{ end }}</button>
+        {{ if .Post.Published }}
+            <button type="submit" name="action" value="publish">Publish changes</button>
+            <button type="submit" name="action" value="draft">Convert to draft</button>
+        {{ else }}
+            <button type="submit" name="action" value="draft">Save draft</button>
+            <button type="submit" name="action" value="publish">Publish</button>
+        {{ end }}
         <a class="btn" href="/delete/{{ .Post.ID }}">Delete</a>
     </div>
 </form>

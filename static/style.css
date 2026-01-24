@@ -21,6 +21,17 @@
 }
 
 @font-face {
+    font-family: "Courier Prime";
+    src:
+        local("Courier Prime Italic"),
+        local("CourierPrime-Italic"),
+        url("./fonts/CourierPrime-Italic.woff2") format("woff2");
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
     font-family: "IBM Plex Mono";
     src:
         local("IBM PLex Mono Regular"),
@@ -42,25 +53,64 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: "IBM Plex Mono";
+    src:
+        local("IBM Plex Mono Italic"),
+        local("IBMPlexMono-Italic"),
+        url("./fonts/IBMPlexMono-Italic.woff2") format("woff2");
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Inter";
+    src:
+        local("Inter Regular"),
+        local("Inter-Regular"),
+        url("./fonts/Inter-Regular.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Inter";
+    src:
+        local("Inter Bold"),
+        local("Inter-Bold"),
+        url("./fonts/Inter-Bold.woff2") format("woff2");
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
-    --text: black;
-    --bg: white;
-    --faint: gray;
-    --accent: lightgrey;
+    --text: hsl(0 0% 10%);
+    --dull: hsl(0 0% 45%);
+    --accent: hsl(0 0% 75%);
+    --selection: hsl(0 0% 80%);
+    --faint: hsl(0 0% 90%);
+    --bg: hsl(0 0% 95%);
 }
 
 [data-theme="blue"] {
-    --text: hsl(200 50% 15%);
-    --bg: hsl(200 50% 95%);
-    --faint: hsl(200 10% 45%);
-    --accent: hsl(200 75% 65%);
+    --text: hsl(200 50% 10%);
+    --dull: hsl(200 15% 45%);
+    --accent: hsl(200 75% 70%);
+    --selection: hsl(200 25% 85%);
+    --faint: hsl(200 15% 90%);
+    --bg: hsl(200 25% 95%);
 }
 
 [data-theme="sepia"] {
     --text: hsl(45 50% 10%);
-    --bg: hsl(45 25% 95%);
-    --faint: hsl(45 10% 45%);
+    --dull: hsl(45 15% 45%);
     --accent: hsl(45 75% 65%);
+    --selection: hsl(45 25% 80%);
+    --faint: hsl(45 15% 90%);
+    --bg: hsl(45 25% 95%);
 }
 
 [data-font="monospace"] {
@@ -68,13 +118,17 @@
 }
 
 [data-font="sans-serif"] {
-    font-family: sans-serif;
+    font-family: Inter, sans-serif;
 }
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+::selection {
+    background: var(--selection);
 }
 
 html {
@@ -91,8 +145,7 @@ body {
 /* container styles */
 
 nav {
-    background: var(--text);
-    color: var(--bg);
+    background: var(--faint);
     padding: 0.5rem 1rem;
     display: flex;
     justify-content: space-between;
@@ -144,6 +197,7 @@ main header:has(.editing) {
 
 #new_post_btn {
     font-size: 1.5rem;
+    margin-left: 2rem;
 }
 
 /* text styles */
@@ -166,10 +220,10 @@ h1 {
 }
 
 p.editing {
-    color: var(--faint);
+    color: var(--dull);
     font-style: italic;
     font-weight: normal;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 nav a {
@@ -178,6 +232,7 @@ nav a {
 
 a {
     color: inherit;
+    text-decoration-thickness: 3px;
 }
 
 p {
@@ -234,7 +289,7 @@ main ul li a {
     font-weight: normal;
     border: 1px solid;
     border-radius: 12px;
-    box-shadow: inset 1px 1px var(--faint);
+    box-shadow: inset 1px 1px var(--dull);
     padding: 8px 12px;
 }
 
@@ -246,10 +301,6 @@ main ul li a {
     display: inline-block;
 }
 
-#logout_form button {
-    font-weight: bold;
-}
-
 label[for="intro"] {
     display: inline-block;
     margin-bottom: 1rem;
@@ -258,7 +309,7 @@ label[for="intro"] {
 textarea#intro {
     border: 1px solid;
     border-radius: 12px;
-    box-shadow: inset 1px 1px lightgray;
+    box-shadow: inset 1px 1px var(--faint);
     min-height: 100px;
     padding: 8px 12px;
 }
@@ -343,12 +394,13 @@ form textarea[name="title"] {
     font-size: 3rem;
     line-height: 1.1;
     margin-bottom: 2rem;
+    text-wrap: balance;
 }
 
 form button {
     cursor: pointer;
     text-decoration: underline;
-    text-decoration-thickness: 1px;
+    text-decoration-thickness: 3px;
 }
 
 /* icons */

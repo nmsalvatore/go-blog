@@ -1,4 +1,5 @@
 {{ define "content" }}
+<p class="editing">New post</p>
 <form id="blog_post_form" action="/new" method="post">
     <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
     <textarea name="title" placeholder="Title"></textarea>

@@ -8,11 +8,10 @@
         <legend>Introduction Text</legend>
         <textarea name="intro" id="intro" placeholder="Enter intro text for the home page.">{{ .Intro }}</textarea>
     </fieldset>
-    <!--<label for="intro">Modify the introduction text for the home page below. Leave it empty to omit introduction text.</label>-->
 
     <fieldset>
         <legend>Theme</legend>
-        <label><input type="radio" name="theme" value="" {{if eq .Theme ""}}checked{{end}}>Light</label>
+        <label><input type="radio" name="theme" value="" {{if eq .Theme ""}}checked{{end}}>Gray</label>
         <label><input type="radio" name="theme" value="blue" {{if eq .Theme "blue"}}checked{{end}}>Blue</label>
         <label><input type="radio" name="theme" value="sepia" {{if eq .Theme "sepia"}}checked{{end}}>Sepia</label>
     </fieldset>
