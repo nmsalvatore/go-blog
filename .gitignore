@@ -4,3 +4,6 @@ blog
 
 # Claude
 .claude
+
+# Deployment
+deploy/.env.deploy

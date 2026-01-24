@@ -1,0 +1,22 @@
+[Unit]
+Description=Go Blog Service
+After=network.target
+
+[Service]
+# Replace 'user' with your actual linux username
+User=user
+Group=user
+
+# Directory where you deployed the app (matches DEPLOY_DIR in script)
+WorkingDirectory=/opt/blog
+ExecStart=/opt/blog/blog
+
+# Environment variables from .env file
+EnvironmentFile=/opt/blog/.env
+
+# Restart on crash
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
