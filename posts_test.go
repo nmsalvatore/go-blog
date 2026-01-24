@@ -505,3 +505,29 @@ func TestUpdatePost_EmptySlugFallback(t *testing.T) {
 		t.Errorf("expected post.Slug 'untitled', got %q", post.Slug)
 	}
 }
+
+func TestUpdatePost_EmptySlugFallback_WhenUntitledExists(t *testing.T) {
+	blog := setupTestDB(t)
+
+	// Create a post that will have slug "untitled"
+	createPost(blog.db, "!@#$%", "Content 1", true)
+
+	// Create a second post with normal title
+	createPost(blog.db, "Normal Title", "Content 2", true)
+
+	// Update second post to a title that produces empty slug
+	// Should get "untitled-2" since "untitled" already exists
+	newSlug, err := updatePost(blog.db, 2, "^&*()", "Updated content", true)
+	if err != nil {
+		t.Fatalf("updatePost() error: %v", err)
+	}
+
+	if newSlug != "untitled-2" {
+		t.Errorf("expected slug 'untitled-2', got %q", newSlug)
+	}
+
+	post, _ := getPostByID(blog.db, 2)
+	if post.Slug != "untitled-2" {
+		t.Errorf("expected post.Slug 'untitled-2', got %q", post.Slug)
+	}
+}

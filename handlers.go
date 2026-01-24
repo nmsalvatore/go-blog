@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 )
@@ -179,7 +180,7 @@ func (b *Blog) Create(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.Redirect(w, r, "/post/"+slug, http.StatusSeeOther)
+		http.Redirect(w, r, "/post/"+url.PathEscape(slug), http.StatusSeeOther)
 	}
 }
 
@@ -236,7 +237,7 @@ func (b *Blog) Edit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.Redirect(w, r, "/post/"+newSlug, http.StatusSeeOther)
+		http.Redirect(w, r, "/post/"+url.PathEscape(newSlug), http.StatusSeeOther)
 	}
 }
 
