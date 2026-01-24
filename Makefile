@@ -1,6 +1,13 @@
+.DEFAULT_GOAL := build
 .PHONY: build build-linux run test fmt vet clean
 
-build:
+fmt:
+	go fmt ./...
+
+vet:fmt
+	go vet ./...
+
+build:vet
 	go build -o blog .
 
 build-linux:
@@ -12,11 +19,5 @@ run:
 test:
 	go test ./...
 
-fmt:
-	go fmt ./...
-
-vet:
-	go vet ./...
-
 clean:
-	rm -f blog
+	go clean .
