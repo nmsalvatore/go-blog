@@ -4,8 +4,11 @@
 </header>
 <form action="/settings" method="post">
     <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
-    <label for="intro">Modify the introduction text for the home page below. Leave it empty to omit introduction text.</label>
-    <textarea name="intro" id="intro" placeholder="Enter intro text for the home page.">{{ .Intro }}</textarea>
+    <fieldset>
+        <legend>Introduction Text</legend>
+        <textarea name="intro" id="intro" placeholder="Enter intro text for the home page.">{{ .Intro }}</textarea>
+    </fieldset>
+    <!--<label for="intro">Modify the introduction text for the home page below. Leave it empty to omit introduction text.</label>-->
 
     <fieldset>
         <legend>Theme</legend>

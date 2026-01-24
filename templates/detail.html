@@ -1,10 +1,10 @@
 {{ define "content" }}
 <article>
-    <a class="back-arrow" href="/">&larr;</a>
-    <header>
+    <header class="post-header">
         <h1 class="title">{{ .Post.Title }}</h1>
+        <p>By <a class="author-link" href="/">Quiet Nothings</a></p>
     </header>
-    <div class="content">
+    <div class="post-content">
         {{ .Post.Content | format }}
     </div>
     {{ if .IsAuthenticated }}

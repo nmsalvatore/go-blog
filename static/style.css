@@ -20,26 +20,51 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: "IBM Plex Mono";
+    src:
+        local("IBM PLex Mono Regular"),
+        local("IBMPlexMono-Regular"),
+        url("./fonts/IBMPlexMono-Regular.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    src:
+        local("IBM Plex Mono Bold"),
+        local("IBMPlexMono-Bold"),
+        url("./fonts/IBMPlexMono-Bold.woff2") format("woff2");
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --text: black;
     --bg: white;
     --faint: gray;
+    --accent: lightgrey;
 }
 
 [data-theme="blue"] {
-    --text: hsl(200 50% 20%);
+    --text: hsl(200 50% 15%);
     --bg: hsl(200 50% 95%);
     --faint: hsl(200 10% 45%);
+    --accent: hsl(200 75% 65%);
 }
 
 [data-theme="sepia"] {
-    --text: hsl(45 25% 10%);
+    --text: hsl(45 50% 10%);
     --bg: hsl(45 25% 95%);
     --faint: hsl(45 10% 45%);
+    --accent: hsl(45 75% 65%);
 }
 
 [data-font="monospace"] {
-    font-family: monospace;
+    font-family: "IBM Plex Mono", monospace;
 }
 
 [data-font="sans-serif"] {
@@ -53,7 +78,7 @@
 }
 
 html {
-    font-size: 100%;
+    font-size: 110%;
 }
 
 body {
@@ -68,13 +93,13 @@ body {
 nav {
     background: var(--text);
     color: var(--bg);
-    padding: 1rem;
+    padding: 0.5rem 1rem;
     display: flex;
     justify-content: space-between;
     gap: 1rem;
 }
 
-nav div:has(#logout_form) {
+nav div {
     display: inline-flex;
     gap: 1rem;
 }
@@ -85,17 +110,9 @@ main {
     padding: 8rem 0;
 }
 
-nav + main {
-    padding: 6rem 0;
-}
-
 @media only screen and (max-width: calc(420px + 2rem)) {
     main {
         padding: 3rem 1rem;
-    }
-
-    nav + main {
-        padding: 2rem 1rem;
     }
 }
 
@@ -103,15 +120,30 @@ main header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 main header:has(.editing) {
     padding-bottom: 2rem;
 }
 
-.content {
+.post-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.post-header p {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.post-content {
     padding-bottom: 1rem;
+}
+
+#new_post_btn {
+    font-size: 1.5rem;
 }
 
 /* text styles */
@@ -123,12 +155,21 @@ h4,
 h5,
 h6 {
     font-size: inherit;
+    line-height: 1.1;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    hyphens: auto;
 }
 
-h1.editing {
+h1 {
+    font-size: 3rem;
+}
+
+p.editing {
     color: var(--faint);
     font-style: italic;
     font-weight: normal;
+    margin-bottom: 2rem;
 }
 
 nav a {
@@ -137,11 +178,14 @@ nav a {
 
 a {
     color: inherit;
-    text-decoration-thickness: 1px;
 }
 
 p {
-    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+p.intro {
+    margin-bottom: 2rem;
 }
 
 main header a {
@@ -149,10 +193,17 @@ main header a {
     text-decoration: none;
 }
 
+.author-link {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 3px;
+}
+
 /* list styles */
 
 main ul {
     padding-left: 1rem;
+    font-size: 1.2rem;
 }
 
 main ul.drafts {
@@ -160,12 +211,14 @@ main ul.drafts {
     list-style-type: circle;
 }
 
-main ul.drafts li a {
-    color: var(--faint);
-}
-
 main ul:not(.drafts) {
     font-weight: bold;
+}
+
+main ul.published li a {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 3px;
 }
 
 main ul li a {
@@ -193,12 +246,16 @@ main ul li a {
     display: inline-block;
 }
 
+#logout_form button {
+    font-weight: bold;
+}
+
 label[for="intro"] {
     display: inline-block;
     margin-bottom: 1rem;
 }
 
-#intro {
+textarea#intro {
     border: 1px solid;
     border-radius: 12px;
     box-shadow: inset 1px 1px lightgray;
@@ -283,6 +340,9 @@ form textarea[name="title"] {
     padding-bottom: 0;
     font-weight: bold;
     resize: none;
+    font-size: 3rem;
+    line-height: 1.1;
+    margin-bottom: 2rem;
 }
 
 form button {
@@ -295,6 +355,7 @@ form button {
 
 .back-arrow {
     display: inline-block;
+    font-size: 1.5rem;
     font-weight: bold;
     text-decoration: none;
     margin-bottom: 2rem;

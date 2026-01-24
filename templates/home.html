@@ -2,11 +2,11 @@
 <header>
     <h1>Quiet Nothings</h1>
     {{ if .IsAuthenticated }}
-        <a href="/new">&plus;</a>
+        <a id="new_post_btn" href="/new">&plus;</a>
     {{ end }}
 </header>
 {{ if .Intro }}
-    <p>{{ .Intro }}</p>
+    <p class="intro">{{ .Intro }}</p>
 {{ end }}
 {{ if and .IsAuthenticated .Drafts }}
     <ul class="drafts">
@@ -15,7 +15,7 @@
         {{ end }}
     </ul>
 {{ end }}
-<ul>
+<ul class="published">
     {{ range .Posts }}
         <li><a href="/post/{{ .ID }}">{{ .Title }}</a></li>
     {{ end }}

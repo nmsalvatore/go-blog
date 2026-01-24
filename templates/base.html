@@ -13,9 +13,11 @@
 <body data-theme="{{ .Theme }}" data-font="{{ .Font }}">
     {{ if .IsAuthenticated }}
         <nav>
-            <a href="/">Home</a>
             <div>
+                <a href="/">Home</a>
                 <a href="/settings">Settings</a>
+            </div>
+            <div>
                 <form id="logout_form" action="/logout" method="post">
                     <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
                     <button type="submit">Logout</button>

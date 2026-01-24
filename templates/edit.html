@@ -1,7 +1,5 @@
 {{ define "content" }}
-<header>
-    <h1 class="editing">Editing "{{ .Post.Title }}"</h1>
-</header>
+<p class="editing">Editing "{{ .Post.Title }}"</p>
 <form id="blog_post_form" action="/edit/{{ .Post.ID }}" method="post">
     <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
     <textarea name="title" placeholder="Title">{{ .Post.Title }}</textarea>
