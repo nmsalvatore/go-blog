@@ -1,3 +1,6 @@
 .env
 blog.db
 blog
+
+# Claude
+.claude
