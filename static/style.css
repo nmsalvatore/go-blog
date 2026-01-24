@@ -1,16 +1,19 @@
 :root {
     --text: black;
     --bg: white;
+    --faint: gray;
 }
 
 [data-theme="blue"] {
     --text: hsl(200 50% 20%);
     --bg: hsl(200 50% 95%);
+    --faint: hsl(200 10% 45%);
 }
 
 [data-theme="sepia"] {
     --text: hsl(45 25% 10%);
     --bg: hsl(45 25% 95%);
+    --faint: hsl(45 10% 45%);
 }
 
 [data-font="monospace"] {
@@ -101,7 +104,7 @@ h6 {
 }
 
 h1.editing {
-    color: hsl(45 5% 60%);
+    color: var(--faint);
     font-style: italic;
     font-weight: normal;
 }
@@ -120,6 +123,7 @@ p {
 }
 
 main header a {
+    font-weight: bold;
     text-decoration: none;
 }
 
@@ -130,12 +134,23 @@ main ul {
 }
 
 main ul.drafts {
-    list-style-type: circle;
     margin-bottom: 1rem;
+    list-style-type: circle;
 }
 
-main ul.drafts li {
-    font-style: italic;
+main ul.drafts li a {
+    color: var(--faint);
+}
+
+main ul:not(.drafts) {
+    font-weight: bold;
+}
+
+main ul li a {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* form styles */
@@ -144,7 +159,7 @@ main ul.drafts li {
     font-weight: normal;
     border: 1px solid;
     border-radius: 12px;
-    box-shadow: inset 1px 1px lightgray;
+    box-shadow: inset 1px 1px var(--faint);
     padding: 8px 12px;
 }
 
