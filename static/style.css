@@ -1,3 +1,26 @@
+/*
+ * Quiet Nothings - Blog Stylesheet
+ *
+ * Table of Contents:
+ * 1. Font Faces
+ * 2. Custom Properties (Theme Colors)
+ * 3. Reset
+ * 4. Base Typography
+ * 5. Layout
+ * 6. Navigation
+ * 7. Page Header
+ * 8. Post Content
+ * 9. Lists
+ * 10. Forms
+ * 11. Buttons & Links
+ * 12. Utilities
+ * 13. Media Queries
+ */
+
+/* ==========================================================================
+   1. Font Faces
+   ========================================================================== */
+
 @font-face {
     font-family: "Courier Prime";
     src:
@@ -86,10 +109,14 @@
     font-display: swap;
 }
 
+/* ==========================================================================
+   2. Custom Properties (Theme Colors)
+   ========================================================================== */
+
 :root {
     --text: hsl(0 0% 10%);
     --dull: hsl(0 0% 45%);
-    --accent: hsl(0 0% 75%);
+    --accent: hsl(60 75% 50%);
     --selection: hsl(0 0% 80%);
     --faint: hsl(0 0% 90%);
     --bg: hsl(0 0% 95%);
@@ -107,12 +134,13 @@
 [data-theme="sepia"] {
     --text: hsl(45 50% 10%);
     --dull: hsl(45 15% 45%);
-    --accent: hsl(45 75% 65%);
+    --accent: hsl(45 75% 60%);
     --selection: hsl(45 25% 80%);
     --faint: hsl(45 15% 90%);
     --bg: hsl(45 25% 95%);
 }
 
+/* Font family overrides */
 [data-font="monospace"] {
     font-family: "IBM Plex Mono", monospace;
 }
@@ -121,7 +149,13 @@
     font-family: Inter, sans-serif;
 }
 
-* {
+/* ==========================================================================
+   3. Reset
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -130,6 +164,10 @@
 ::selection {
     background: var(--selection);
 }
+
+/* ==========================================================================
+   4. Base Typography
+   ========================================================================== */
 
 html {
     font-size: 110%;
@@ -141,66 +179,6 @@ body {
     font-family: "Courier Prime", Courier, monospace;
     line-height: 1.3;
 }
-
-/* container styles */
-
-nav {
-    background: var(--faint);
-    padding: 0.5rem 1rem;
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-nav div {
-    display: inline-flex;
-    gap: 1rem;
-}
-
-main {
-    max-width: 420px;
-    margin: auto;
-    padding: 8rem 0;
-}
-
-@media only screen and (max-width: calc(420px + 2rem)) {
-    main {
-        padding: 3rem 1rem;
-    }
-}
-
-main header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-main header:has(.editing) {
-    padding-bottom: 2rem;
-}
-
-.post-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
-}
-
-.post-header p {
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-.post-content {
-    padding-bottom: 1rem;
-}
-
-#new_post_btn {
-    font-size: 1.5rem;
-    margin-left: 2rem;
-}
-
-/* text styles */
 
 h1,
 h2,
@@ -219,15 +197,8 @@ h1 {
     font-size: 3rem;
 }
 
-p.editing {
-    color: var(--dull);
-    font-style: italic;
-    font-weight: normal;
+p {
     margin-bottom: 1rem;
-}
-
-nav a {
-    display: inline;
 }
 
 a {
@@ -235,12 +206,50 @@ a {
     text-decoration-thickness: 3px;
 }
 
-p {
-    margin-bottom: 1rem;
+/* ==========================================================================
+   5. Layout
+   ========================================================================== */
+
+main {
+    max-width: 420px;
+    margin: auto;
+    padding: 8rem 0;
 }
 
-p.intro {
-    margin-bottom: 2rem;
+/* ==========================================================================
+   6. Navigation
+   ========================================================================== */
+
+nav {
+    background: var(--faint);
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+nav div {
+    display: inline-flex;
+    gap: 1rem;
+}
+
+nav a {
+    display: inline;
+}
+
+/* ==========================================================================
+   7. Page Header
+   ========================================================================== */
+
+main header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+main header:has(.editing) {
+    padding-bottom: 2rem;
 }
 
 main header a {
@@ -248,26 +257,64 @@ main header a {
     text-decoration: none;
 }
 
-.author-link {
-    text-decoration: underline;
-    text-decoration-color: var(--accent);
-    text-decoration-thickness: 3px;
+/* New post button */
+#new_post_btn {
+    font-size: 1.5rem;
+    margin-left: 2rem;
 }
 
-/* list styles */
+/* Post detail header */
+.post-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.post-header p {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   8. Post Content
+   ========================================================================== */
+
+.post-content {
+    padding-bottom: 1rem;
+}
+
+p.intro {
+    margin-bottom: 2rem;
+}
+
+p.editing {
+    color: var(--dull);
+    font-style: italic;
+    font-weight: normal;
+    margin-bottom: 1rem;
+}
+
+p.error {
+    color: var(--dull);
+    margin-bottom: 1rem;
+}
+
+/* ==========================================================================
+   9. Lists
+   ========================================================================== */
 
 main ul {
     padding-left: 1rem;
     font-size: 1.2rem;
 }
 
+main ul:not(.drafts) {
+    font-weight: bold;
+}
+
 main ul.drafts {
     margin-bottom: 1rem;
     list-style-type: circle;
-}
-
-main ul:not(.drafts) {
-    font-weight: bold;
 }
 
 main ul.published li a {
@@ -283,8 +330,66 @@ main ul li a {
     text-overflow: ellipsis;
 }
 
-/* form styles */
+/* ==========================================================================
+   10. Forms
+   ========================================================================== */
 
+/* Base form element resets */
+form input,
+form textarea,
+form button {
+    background: inherit;
+    border: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+form input:focus,
+form textarea:focus,
+form button:focus {
+    outline: none;
+}
+
+/* Text inputs and textareas */
+form input,
+form textarea {
+    background: white;
+    width: 100%;
+}
+
+form input {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+form textarea {
+    resize: vertical;
+    field-sizing: content;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    padding-bottom: 1rem;
+}
+
+/* Blog post form (create/edit) */
+#blog_post_form input,
+#blog_post_form textarea {
+    background: inherit;
+}
+
+form textarea[name="title"] {
+    padding-bottom: 0;
+    font-weight: bold;
+    resize: none;
+    font-size: 3rem;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+    text-wrap: balance;
+}
+
+/* Login form */
 #login_form input {
     font-weight: normal;
     border: 1px solid;
@@ -297,10 +402,12 @@ main ul li a {
     margin-bottom: 1rem;
 }
 
+/* Logout form (inline in nav) */
 #logout_form {
     display: inline-block;
 }
 
+/* Settings form */
 label[for="intro"] {
     display: inline-block;
     margin-bottom: 1rem;
@@ -314,6 +421,7 @@ textarea#intro {
     padding: 8px 12px;
 }
 
+/* Fieldsets (settings page) */
 fieldset {
     border: none;
     margin-bottom: 1rem;
@@ -335,67 +443,16 @@ fieldset input[type="radio"] {
     font-weight: normal;
 }
 
+/* Form actions container */
 .actions {
-    align-items: flex-start;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
 }
 
-form input,
-form textarea,
-form button {
-    background: inherit;
-    border: none;
-    color: inherit;
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
-}
-
-form input,
-form textarea {
-    background: white;
-}
-
-#blog_post_form input,
-#blog_post_form textarea {
-    background: inherit;
-}
-
-form input:focus,
-form textarea:focus,
-form button:focus {
-    outline: none;
-}
-
-form input,
-form textarea {
-    width: 100%;
-}
-
-form input {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 1rem;
-}
-
-form textarea {
-    resize: vertical;
-    field-sizing: content;
-    margin-bottom: 1rem;
-    overflow: hidden;
-    padding-bottom: 1rem;
-}
-
-form textarea[name="title"] {
-    padding-bottom: 0;
-    font-weight: bold;
-    resize: none;
-    font-size: 3rem;
-    line-height: 1.1;
-    margin-bottom: 2rem;
-    text-wrap: balance;
-}
+/* ==========================================================================
+   11. Buttons & Links
+   ========================================================================== */
 
 form button {
     cursor: pointer;
@@ -403,7 +460,28 @@ form button {
     text-decoration-thickness: 3px;
 }
 
-/* icons */
+/* Links within paragraphs */
+p a {
+    font-weight: bold;
+    text-decoration-color: var(--accent);
+}
+
+/* Author link on post detail */
+.author-link {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 3px;
+}
+
+/* Button-styled links */
+.btn {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+}
+
+/* ==========================================================================
+   12. Utilities
+   ========================================================================== */
 
 .back-arrow {
     display: inline-block;
@@ -411,4 +489,14 @@ form button {
     font-weight: bold;
     text-decoration: none;
     margin-bottom: 2rem;
+}
+
+/* ==========================================================================
+   13. Media Queries
+   ========================================================================== */
+
+@media only screen and (max-width: calc(420px + 2rem)) {
+    main {
+        padding: 3rem 1rem;
+    }
 }
