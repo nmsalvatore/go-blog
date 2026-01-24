@@ -279,3 +279,12 @@ sudo chown -R blog:blog /opt/blog
 sudo systemctl status blog
 sudo systemctl status caddy
 ```
+
+### Updating
+
+```bash
+sudo chown -R $USER:$USER .
+git pull
+make build
+sudo systemctl restart blog
+```
