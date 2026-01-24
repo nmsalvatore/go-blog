@@ -1,22 +1,40 @@
+# -----------------------------------------------------------------------------
+# INSTALLATION INSTRUCTIONS
+# 1. Edit this file: Replace 'user' with your actual username.
+# 2. Copy to systemd: sudo cp blog.service.example /etc/systemd/system/blog.service
+# 3. Reload systemd:  sudo systemctl daemon-reload
+# 4. Enable on boot:  sudo systemctl enable blog
+# 5. Start service:   sudo systemctl start blog
+# -----------------------------------------------------------------------------
+
 [Unit]
 Description=Go Blog Service
 After=network.target
 
 [Service]
-# Replace 'user' with your actual linux username
+# Service Config
+Type=simple
 User=user
 Group=user
-
-# Directory where you deployed the app (matches DEPLOY_DIR in script)
 WorkingDirectory=/opt/blog
 ExecStart=/opt/blog/blog
-
-# Environment variables from .env file
 EnvironmentFile=/opt/blog/.env
 
-# Restart on crash
+# Restart Policy
 Restart=always
-RestartSec=5
+RestartSec=5s
+
+# Security Hardening (Best Practices)
+# Prevent the app from gaining new privileges (sudo, etc)
+NoNewPrivileges=yes
+# Mount /tmp as private for this process
+PrivateTmp=yes
+# Mount the rest of the file system as read-only (except for specific paths if needed)
+# ProtectSystem=full
+# Deny access to /home. 
+# NOTE: If you deploy the app inside a user's home directory (e.g., /home/user/blog), 
+# you MUST set this to 'no' or 'read-only', otherwise the app will fail to start.
+ProtectHome=yes
 
 [Install]
 WantedBy=multi-user.target

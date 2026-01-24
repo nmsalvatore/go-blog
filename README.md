@@ -1,294 +1,115 @@
-# Blog
+# Go Blog Engine
 
-A minimalist single-user blog.
+👋 **Welcome!** This is a minimal, fast, and self-hosted blogging platform written in Go. It's designed for developers who want a simple, no-nonsense way to publish content without the bloat of WordPress or the complexity of static site generators.
 
-## Development
+It includes a built-in admin interface, Markdown support, drafts, and a "dummy-proof" deployment script.
 
-```bash
-cp .env.example .env
-# Edit .env with your credentials
-make run
-```
+## 🚀 Features
 
-Visit http://localhost:8080
+*   **Self-Contained:** Compiles to a single binary with an embedded SQLite database. No need to install Postgres, MySQL, or Redis.
+*   **Minimal Markdown:** Support for **bold**, *italic*, and [links](https://example.com) only, keeping things clean and lightweight.
+*   **Drafts:** Save posts as drafts and publish them when you're ready.
+*   **RSS Feed:** Built-in automatic RSS feed at `/feed`.
+*   **Secure:** CSRF protection, secure sessions, and strict HTML escaping.
+*   **Themable:** Simple CSS variables for easy customization.
 
-## Deployment
+---
 
-### Prerequisites
+## 🛠️ Local Development
 
-- Linux server (Debian/Ubuntu)
-- Domain name with DNS pointing to your server's IP address
-- SSH access to your server
-- Go 1.21+ installed locally (for compilation)
+Getting started is super easy. You just need **Go 1.22+** installed.
 
-### 1. Build
+1.  **Clone the repo:**
+    ```bash
+    git clone https://github.com/yourusername/go-blog.git
+    cd go-blog
+    ```
 
-Build for your server:
+2.  **Setup Environment:**
+    Copy the example configuration:
+    ```bash
+    cp .env.example .env
+    ```
+    *You can leave the defaults as-is for local testing.*
 
-```bash
-make build-linux
-```
+3.  **Run it:**
+    We use a `Makefile` for convenience:
+    ```bash
+    make run
+    ```
+    Open your browser to [http://localhost:8080](http://localhost:8080).
 
-This cross-compiles a Linux binary (works from Mac/Windows). If building directly on your Linux server, use `make build` instead.
+4.  **Login:**
+    *   Go to [http://localhost:8080/admin](http://localhost:8080/admin)
+    *   **User:** `admin`
+    *   **Password:** `changeme` (or whatever you set in `.env`)
 
-### 2. Upload
+---
 
-Copy files to your server. Replace `user@yourserver.com` with your actual SSH login:
+## ⚙️ Configuration
 
-```bash
-# Create directory on server first
-ssh user@yourserver.com "sudo mkdir -p /opt/blog"
+Everything is configured via the `.env` file.
 
-# Copy files
-scp blog user@yourserver.com:/tmp/
-scp -r templates static .env.example user@yourserver.com:/tmp/
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `ADMIN_USER` | Username for the admin panel. | `admin` |
+| `ADMIN_PASS` | Password for the admin panel. | `changeme` |
+| `SECURE_COOKIES` | Set to `true` in production (requires HTTPS). | `false` |
+| `BLOG_NAME` | The name displayed in the header/title. | `My Blog` |
 
-# Move to destination with correct ownership
-ssh user@yourserver.com "sudo mv /tmp/blog /tmp/templates /tmp/static /tmp/.env.example /opt/blog/"
-```
+---
 
-### 3. Create service user
+## 🚢 Deployment & Production
 
-Create a dedicated user to run the blog (more secure than running as root):
+### 1. Reverse Proxy (Recommended)
+In production, it is highly recommended to run this app behind a reverse proxy like **Caddy** or **Nginx**. This handles HTTPS (SSL/TLS) and provides a professional setup.
 
-```bash
-ssh user@yourserver.com
-sudo useradd -r -s /bin/false blog
-sudo chown -R blog:blog /opt/blog
-```
-
-### 4. Configure
-
-Create and edit the environment file:
-
-```bash
-cd /opt/blog
-sudo mv .env.example .env
-sudo nano .env
-```
-
-Set your credentials:
-
-```
-ADMIN_USER=youruser
-ADMIN_PASS=your-secure-password
-SECURE_COOKIES=true
-```
-
-Secure the file (contains your password):
-
-```bash
-sudo chmod 600 .env
-sudo chown blog:blog .env
-```
-
-### 5. Test
-
-Verify the server starts:
-
-```bash
-cd /opt/blog
-sudo -u blog ./blog
-```
-
-You should see `Server starting on :8080`. Press Ctrl+C to stop.
-
-If it fails, check the error message. Common issues:
-- Permission denied: check file ownership with `ls -la`
-- Port in use: another service is using port 8080
-
-### 6. Create systemd service
-
-Create `/etc/systemd/system/blog.service`:
-
-```bash
-sudo nano /etc/systemd/system/blog.service
-```
-
-Paste this configuration:
-
-```ini
-[Unit]
-Description=Blog
-After=network.target
-
-[Service]
-Type=simple
-User=blog
-Group=blog
-WorkingDirectory=/opt/blog
-ExecStart=/opt/blog/blog
-Restart=always
-RestartSec=5
-EnvironmentFile=/opt/blog/.env
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Enable and start the service:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable blog
-sudo systemctl start blog
-```
-
-Check it's running:
-
-```bash
-sudo systemctl status blog
-```
-
-If it fails, check the logs:
-
-```bash
-sudo journalctl -u blog -n 50
-```
-
-### 7. Install Caddy
-
-```bash
-sudo apt update
-sudo apt install -y caddy
-```
-
-### 8. Configure Caddy
-
-Edit the Caddyfile:
-
-```bash
-sudo nano /etc/caddy/Caddyfile
-```
-
-Replace the contents with (use your actual domain):
-
-```
-yourdomain.com {
+**Example Caddyfile:**
+```text
+your-blog.com {
     reverse_proxy localhost:8080
 }
 ```
 
-Restart Caddy:
+### 2. Systemd Service
+You should run the blog as a systemd service to ensure it starts automatically on boot and restarts if it crashes.
 
-```bash
-sudo systemctl restart caddy
-```
+See [deploy/blog.service.example](./deploy/blog.service.example) for a standard configuration template.
 
-Caddy automatically obtains and renews TLS certificates from Let's Encrypt. This may take a moment on first start.
+### 3. Passwordless Deployment
+The deployment script restarts the `blog` service on your server. To make this "one-command" without typing a password every time, you can allow your user to restart the service via `sudo` without a password.
 
-If certificates fail, check:
-- DNS is pointing to this server (`dig yourdomain.com`)
-- Ports 80 and 443 are open (`sudo ufw status`)
+1. SSH into your server and run `sudo visudo`.
+2. Add this line at the bottom (replace `youruser` with your actual username):
+   ```text
+   youruser ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart blog
+   ```
 
-### 9. Configure firewall
+### 4. One-Command Deploy
+1. Configure your server details in `deploy/.env.deploy` (copy from `.env.deploy.example`).
+2. Run the script:
+   ```bash
+   ./deploy/deploy.sh
+   ```
 
-Allow HTTP and HTTPS traffic:
+The script will:
+1. Run `go test` locally (and stop if they fail).
+2. Build the binary for Linux.
+3. Upload only the necessary files (it **won't** overwrite your production `blog.db` or `.env`).
+4. Restart the service on your server instantly.
 
-```bash
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw enable
-```
+---
 
-### 10. Verify
+## 🤝 Contributing
 
-Visit https://yourdomain.com - you should see your blog with HTTPS.
+We love contributions! Whether it's fixing a bug, improving the styles, or adding a new feature, feel free to fork the repo and submit a Pull Request.
 
-## Updating
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
-To deploy changes:
+---
 
-```bash
-# Local: build and upload
-make build-linux
-scp blog user@yourserver.com:/tmp/
-scp -r templates static user@yourserver.com:/tmp/
-
-# Server: move files and restart
-ssh user@yourserver.com "sudo mv /tmp/blog /tmp/templates /tmp/static /opt/blog/ && sudo chown -R blog:blog /opt/blog && sudo systemctl restart blog"
-```
-
-Brief downtime (~1 second) occurs during restart.
-
-## Backups
-
-The database is a single file at `/opt/blog/blog.db`.
-
-### Automatic local backups
-
-Create a backup directory and cron job:
-
-```bash
-sudo mkdir -p /opt/blog/backups
-sudo chown blog:blog /opt/blog/backups
-```
-
-Edit the crontab:
-
-```bash
-sudo crontab -e
-```
-
-Add this line to backup every 6 hours, keeping 7 days of backups:
-
-```
-0 */6 * * * cp /opt/blog/blog.db /opt/blog/backups/blog-$(date +\%Y\%m\%d-\%H).db && find /opt/blog/backups -name "blog-*.db" -mtime +7 -delete
-```
-
-### Restore from backup
-
-```bash
-sudo systemctl stop blog
-sudo cp /opt/blog/backups/blog-YYYYMMDD-HH.db /opt/blog/blog.db
-sudo chown blog:blog /opt/blog/blog.db
-sudo systemctl start blog
-```
-
-### Offsite backups (recommended)
-
-For important data, also copy backups offsite. Example using rsync to another server:
-
-```bash
-rsync -az /opt/blog/backups/ user@backupserver:/backups/blog/
-```
-
-## Troubleshooting
-
-**Blog won't start:**
-```bash
-sudo journalctl -u blog -n 50
-```
-
-**Caddy won't get certificates:**
-```bash
-sudo journalctl -u caddy -n 50
-# Verify DNS
-dig yourdomain.com
-```
-
-**Permission errors:**
-```bash
-ls -la /opt/blog/
-# Should show blog:blog ownership
-sudo chown -R blog:blog /opt/blog
-```
-
-**Check if services are running:**
-```bash
-sudo systemctl status blog
-sudo systemctl status caddy
-```
-
-### Updating
-
-```bash
-// change user to current user, pull changes, build 
-sudo chown -R $USER:$USER .
-git pull
-make build
-
-// change user back to blog
-sudo chown -R blog:blog .
-sudo systemctl restart blog
-```
+**Happy Blogging!** ✍️
