@@ -2,14 +2,35 @@ package main
 
 import (
 	"html/template"
+	"net/url"
 	"regexp"
 	"strings"
 )
 
+var boldRegex = regexp.MustCompile(`\*\*([^*]+)\*\*`)
 var italicRegex = regexp.MustCompile(`\*([^*]+)\*`)
+var linkRegex = regexp.MustCompile(`\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+)\)`)
 
 func format(s string) template.HTML {
 	s = template.HTMLEscapeString(s)
+	s = linkRegex.ReplaceAllStringFunc(s, func(match string) string {
+		parts := linkRegex.FindStringSubmatch(match)
+		if len(parts) != 3 {
+			return match
+		}
+		text, rawURL := parts[1], parts[2]
+		// Parse and validate URL scheme
+		parsedURL, err := url.Parse(rawURL)
+		if err != nil {
+			return match
+		}
+		scheme := strings.ToLower(parsedURL.Scheme)
+		if scheme != "http" && scheme != "https" && scheme != "mailto" {
+			return match
+		}
+		return `<a href="` + rawURL + `" target="_blank" rel="noopener">` + text + `</a>`
+	})
+	s = boldRegex.ReplaceAllString(s, "<strong>$1</strong>")
 	s = italicRegex.ReplaceAllString(s, "<em>$1</em>")
 
 	paragraphs := strings.Split(s, "\n\n")
