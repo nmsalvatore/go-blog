@@ -61,19 +61,6 @@ func TestHome(t *testing.T) {
 	}
 }
 
-func TestHome_NotFound(t *testing.T) {
-	blog := setupTestBlog(t)
-
-	req := httptest.NewRequest(http.MethodGet, "/nonexistent", nil)
-	w := httptest.NewRecorder()
-
-	blog.Home(w, req)
-
-	if w.Code != http.StatusNotFound {
-		t.Errorf("expected status %d, got %d", http.StatusNotFound, w.Code)
-	}
-}
-
 func TestDetail(t *testing.T) {
 	blog := setupTestBlog(t)
 
@@ -82,7 +69,7 @@ func TestDetail(t *testing.T) {
 		t.Fatalf("creating test post: %v", err)
 	}
 
-	req := httptest.NewRequest(http.MethodGet, "/post/"+slug, nil)
+	req := httptest.NewRequest(http.MethodGet, "/"+slug, nil)
 	req.SetPathValue("slug", slug)
 	w := httptest.NewRecorder()
 
@@ -101,7 +88,7 @@ func TestDetail(t *testing.T) {
 func TestDetail_NotFound(t *testing.T) {
 	blog := setupTestBlog(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/post/nonexistent", nil)
+	req := httptest.NewRequest(http.MethodGet, "/nonexistent", nil)
 	req.SetPathValue("slug", "nonexistent")
 	w := httptest.NewRecorder()
 
@@ -292,7 +279,7 @@ func TestDetail_Draft_Unauthenticated(t *testing.T) {
 	// Create a draft post
 	slug, _ := createPost(blog.db, "Draft Post", "Draft content", false)
 
-	req := httptest.NewRequest(http.MethodGet, "/post/"+slug, nil)
+	req := httptest.NewRequest(http.MethodGet, "/"+slug, nil)
 	req.SetPathValue("slug", slug)
 	w := httptest.NewRecorder()
 
@@ -312,7 +299,7 @@ func TestDetail_Draft_Authenticated(t *testing.T) {
 	// Create a session for authentication
 	token, _ := createSession(blog.db, 1)
 
-	req := httptest.NewRequest(http.MethodGet, "/post/"+slug, nil)
+	req := httptest.NewRequest(http.MethodGet, "/"+slug, nil)
 	req.SetPathValue("slug", slug)
 	req.AddCookie(&http.Cookie{Name: sessionCookieName, Value: token})
 	w := httptest.NewRecorder()
@@ -526,7 +513,7 @@ func TestDetail_BySlug(t *testing.T) {
 
 	createPost(blog.db, "My Test Post", "Test content", true)
 
-	req := httptest.NewRequest(http.MethodGet, "/post/my-test-post", nil)
+	req := httptest.NewRequest(http.MethodGet, "/my-test-post", nil)
 	req.SetPathValue("slug", "my-test-post")
 	w := httptest.NewRecorder()
 
@@ -545,7 +532,7 @@ func TestDetail_BySlug(t *testing.T) {
 func TestDetail_BySlug_NotFound(t *testing.T) {
 	blog := setupTestBlog(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/post/nonexistent", nil)
+	req := httptest.NewRequest(http.MethodGet, "/nonexistent", nil)
 	req.SetPathValue("slug", "nonexistent")
 	w := httptest.NewRecorder()
 
@@ -561,7 +548,7 @@ func TestDetail_Draft_BySlug_Unauthenticated(t *testing.T) {
 
 	createPost(blog.db, "Draft Post", "Draft content", false)
 
-	req := httptest.NewRequest(http.MethodGet, "/post/draft-post", nil)
+	req := httptest.NewRequest(http.MethodGet, "/draft-post", nil)
 	req.SetPathValue("slug", "draft-post")
 	w := httptest.NewRecorder()
 
@@ -578,7 +565,7 @@ func TestDetail_Draft_BySlug_Authenticated(t *testing.T) {
 	createPost(blog.db, "Draft Post", "Draft content", false)
 	token, _ := createSession(blog.db, 1)
 
-	req := httptest.NewRequest(http.MethodGet, "/post/draft-post", nil)
+	req := httptest.NewRequest(http.MethodGet, "/draft-post", nil)
 	req.SetPathValue("slug", "draft-post")
 	req.AddCookie(&http.Cookie{Name: sessionCookieName, Value: token})
 	w := httptest.NewRecorder()
@@ -604,11 +591,11 @@ func TestFeed_UsesSlugURLs(t *testing.T) {
 	body := w.Body.String()
 
 	// Should use slug URL, not ID URL
-	if !strings.Contains(body, "/post/my-post-title") {
-		t.Error("expected feed to contain slug URL '/post/my-post-title'")
+	if !strings.Contains(body, "/my-post-title") {
+		t.Error("expected feed to contain slug URL '/my-post-title'")
 	}
-	if strings.Contains(body, "/post/1") {
-		t.Error("feed should not contain ID-based URL '/post/1'")
+	if strings.Contains(body, "/1") {
+		t.Error("feed should not contain ID-based URL '/1'")
 	}
 }
 
@@ -637,7 +624,7 @@ func TestEdit_POST_RedirectsToSlug(t *testing.T) {
 
 	// Verify redirect location is the slug URL, not home
 	location := w.Header().Get("Location")
-	if location != "/post/updated-title" {
-		t.Errorf("expected redirect to '/post/updated-title', got %q", location)
+	if location != "/updated-title" {
+		t.Errorf("expected redirect to '/updated-title', got %q", location)
 	}
 }

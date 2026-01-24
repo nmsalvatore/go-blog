@@ -311,6 +311,74 @@ func TestEnsureUniqueSlug(t *testing.T) {
 	}
 }
 
+func TestIsReservedSlug(t *testing.T) {
+	tests := []struct {
+		slug     string
+		expected bool
+	}{
+		{"admin", true},
+		{"feed", true},
+		{"logout", true},
+		{"new", true},
+		{"edit", true},
+		{"delete", true},
+		{"settings", true},
+		{"static", true},
+		{"my-post", false},
+		{"hello-world", false},
+		{"admin-panel", false}, // suffix doesn't make it reserved
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.slug, func(t *testing.T) {
+			result := isReservedSlug(tt.slug)
+			if result != tt.expected {
+				t.Errorf("isReservedSlug(%q) = %v, want %v", tt.slug, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestEnsureUniqueSlug_ReservedSlugs(t *testing.T) {
+	blog := setupTestDB(t)
+
+	tests := []struct {
+		name     string
+		slug     string
+		expected string
+	}{
+		{"reserved: admin", "admin", "admin-2"},
+		{"reserved: feed", "feed", "feed-2"},
+		{"reserved: settings", "settings", "settings-2"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := ensureUniqueSlug(blog.db, tt.slug, 0)
+			if err != nil {
+				t.Fatalf("ensureUniqueSlug() error: %v", err)
+			}
+			if result != tt.expected {
+				t.Errorf("ensureUniqueSlug(%q, 0) = %q, want %q", tt.slug, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestCreatePost_ReservedSlug(t *testing.T) {
+	blog := setupTestDB(t)
+
+	// Create a post titled "Feed" - should get slug "feed-2" to avoid collision
+	slug, err := createPost(blog.db, "Feed", "Content about feeds", true)
+	if err != nil {
+		t.Fatalf("createPost() error: %v", err)
+	}
+
+	if slug != "feed-2" {
+		t.Errorf("expected slug 'feed-2' for reserved word, got %q", slug)
+	}
+}
+
 func TestEnsureUniqueSlug_MultipleDuplicates(t *testing.T) {
 	blog := setupTestDB(t)
 

@@ -35,7 +35,7 @@ go build             # Build binary
 - Table-driven subtests throughout test files
 
 **Routes:**
-- Public: `/`, `/post/{id}`, `/login`, `/logout`
+- Public: `/`, `/{slug}`, `/feed`, `/admin`, `/logout`
 - Protected: `/new`, `/edit/{id}`, `/delete/{id}`, `/settings`
 
 ## Security Patterns

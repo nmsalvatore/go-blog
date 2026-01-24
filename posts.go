@@ -7,6 +7,24 @@ import (
 	"strings"
 )
 
+// reservedSlugs contains paths that cannot be used as post slugs
+// to prevent collision with application routes
+var reservedSlugs = map[string]bool{
+	"admin":    true,
+	"logout":   true,
+	"feed":     true,
+	"new":      true,
+	"edit":     true,
+	"delete":   true,
+	"settings": true,
+	"static":   true,
+}
+
+// isReservedSlug checks if a slug conflicts with application routes
+func isReservedSlug(slug string) bool {
+	return reservedSlugs[slug]
+}
+
 // generateSlug creates a URL-friendly slug from a title
 func generateSlug(title string) string {
 	// Convert to lowercase
@@ -29,7 +47,7 @@ func generateSlug(title string) string {
 	return slug
 }
 
-// ensureUniqueSlug checks if a slug exists and appends a number suffix if needed
+// ensureUniqueSlug checks if a slug exists or is reserved, and appends a number suffix if needed
 func ensureUniqueSlug(db *sql.DB, slug string, excludeID int) (string, error) {
 	if slug == "" {
 		return "", nil
@@ -39,6 +57,14 @@ func ensureUniqueSlug(db *sql.DB, slug string, excludeID int) (string, error) {
 	suffix := 2
 
 	for {
+		// Check if slug is reserved (conflicts with app routes)
+		if isReservedSlug(candidate) {
+			candidate = fmt.Sprintf("%s-%d", slug, suffix)
+			suffix++
+			continue
+		}
+
+		// Check database for existing posts with this slug
 		var count int
 		var err error
 		if excludeID > 0 {

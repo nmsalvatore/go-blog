@@ -64,17 +64,22 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	// Public routes
-	http.HandleFunc("/", blog.Home)
-	http.HandleFunc("/post/{slug}", blog.Detail)
-	http.HandleFunc("/feed", blog.Feed)
-	http.HandleFunc("/admin", blog.Login)
-	http.HandleFunc("/logout", blog.Logout)
+	http.HandleFunc("GET /{$}", blog.Home)
+	http.HandleFunc("GET /{slug}", blog.Detail)
+	http.HandleFunc("GET /feed", blog.Feed)
+	http.HandleFunc("GET /admin", blog.Login)
+	http.HandleFunc("POST /admin", blog.Login)
+	http.HandleFunc("POST /logout", blog.Logout)
 
 	// Protected routes
-	http.HandleFunc("/new", blog.requireAuth(blog.Create))
-	http.HandleFunc("/edit/{id}", blog.requireAuth(blog.Edit))
-	http.HandleFunc("/delete/{id}", blog.requireAuth(blog.Delete))
-	http.HandleFunc("/settings", blog.requireAuth(blog.Settings))
+	http.HandleFunc("GET /new", blog.requireAuth(blog.Create))
+	http.HandleFunc("POST /new", blog.requireAuth(blog.Create))
+	http.HandleFunc("GET /edit/{id}", blog.requireAuth(blog.Edit))
+	http.HandleFunc("POST /edit/{id}", blog.requireAuth(blog.Edit))
+	http.HandleFunc("GET /delete/{id}", blog.requireAuth(blog.Delete))
+	http.HandleFunc("POST /delete/{id}", blog.requireAuth(blog.Delete))
+	http.HandleFunc("GET /settings", blog.requireAuth(blog.Settings))
+	http.HandleFunc("POST /settings", blog.requireAuth(blog.Settings))
 
 	log.Println("Server starting on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))

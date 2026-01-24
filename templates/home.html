@@ -5,6 +5,7 @@
         <a id="new_post_btn" href="/new">&plus;</a>
     {{ end }}
 </header>
+<p>Subscribe to this blog via <a href="/feed">RSS</a>.</p>
 {{ if .Intro }}
     <p class="intro">{{ .Intro }}</p>
 {{ end }}
@@ -17,7 +18,7 @@
 {{ end }}
 <ul class="published">
     {{ range .Posts }}
-        <li><a href="/post/{{ .Slug }}">{{ .Title }}</a></li>
+        <li><a href="/{{ .Slug }}">{{ .Title }}</a></li>
     {{ end }}
 </ul>
 {{ end }}

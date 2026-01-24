@@ -53,11 +53,6 @@ func (b *Blog) getDisplaySettings() (theme, font string) {
 }
 
 func (b *Blog) Home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-
 	isAuth := b.isAuthenticated(r)
 
 	var posts, drafts []Post
@@ -180,7 +175,7 @@ func (b *Blog) Create(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.Redirect(w, r, "/post/"+url.PathEscape(slug), http.StatusSeeOther)
+		http.Redirect(w, r, "/"+url.PathEscape(slug), http.StatusSeeOther)
 	}
 }
 
@@ -237,7 +232,7 @@ func (b *Blog) Edit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.Redirect(w, r, "/post/"+url.PathEscape(newSlug), http.StatusSeeOther)
+		http.Redirect(w, r, "/"+url.PathEscape(newSlug), http.StatusSeeOther)
 	}
 }
 
@@ -431,7 +426,7 @@ func (b *Blog) Feed(w http.ResponseWriter, r *http.Request) {
 
 	items := make([]rssItem, len(posts))
 	for i, post := range posts {
-		postURL := fmt.Sprintf("%s/post/%s", baseURL, post.Slug)
+		postURL := fmt.Sprintf("%s/%s", baseURL, post.Slug)
 		items[i] = rssItem{
 			Title:       post.Title,
 			Link:        postURL,
