@@ -91,11 +91,11 @@ nav + main {
 
 @media only screen and (max-width: calc(420px + 2rem)) {
     main {
-        padding: 4rem 1rem;
+        padding: 3rem 1rem;
     }
 
     nav + main {
-        padding: 3rem 1rem;
+        padding: 2rem 1rem;
     }
 }
 
@@ -295,6 +295,7 @@ form button {
 
 .back-arrow {
     display: inline-block;
+    font-weight: bold;
     text-decoration: none;
     margin-bottom: 2rem;
 }
