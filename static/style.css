@@ -116,8 +116,8 @@
 :root {
     --text: hsl(0 0% 10%);
     --dull: hsl(0 0% 45%);
-    --accent: hsl(60 75% 50%);
-    --selection: hsl(60 35% 80%);
+    --accent: hsl(150 75% 45%);
+    --selection: hsl(150 35% 75%);
     --faint: hsl(0 0% 90%);
     --bg: hsl(0 0% 95%);
 }
