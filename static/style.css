@@ -330,6 +330,13 @@ main ul li a {
     text-overflow: ellipsis;
 }
 
+main ul.drafts li a::before {
+    content: "Draft - ";
+    text-decoration: none;
+    display: inline-block;
+    padding-right: 1ch;
+}
+
 /* ==========================================================================
    10. Forms
    ========================================================================== */
