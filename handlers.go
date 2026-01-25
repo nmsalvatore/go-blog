@@ -88,6 +88,7 @@ func (b *Blog) Home(w http.ResponseWriter, r *http.Request) {
 
 	theme, font, blogName := b.getDisplaySettings()
 	data := map[string]any{
+		"Title":           "Home",
 		"Posts":           posts,
 		"Drafts":          drafts,
 		"Intro":           intro,
